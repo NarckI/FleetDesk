@@ -1,12 +1,47 @@
-<nav>
-    <ul>
-        <li><a href="">Dashboard</a></li>
-        <li><a href="">Drivers</a></li>
-        <li><a href="">Vehicles</a></li>
-        <li><a href="">Contracts</a></li>
-        <li><a href="">Payments</a></li>
-        <li><a href="">Repairs</a></li>
-        <li><a href="">Notifications</a></li>
-        <li><a href="{% url 'logout' %}">Logout</a></li>
-    </ul>
-</nav>
+<div class="sidebar">
+    <nav class="nav flex-column">
+        <a class="nav-link" href="#">
+            <span class="icon">
+                <img src="..\static\image\columns-gap.svg">
+            </span>
+            <span class="description">Dashboard</span>
+        </a>
+        <a class="nav-link" href="#">
+            <span class="icon">
+                <img src="..\static\image\people.svg">
+            </span>
+            <span class="description">Drivers</span>
+        </a>
+        <a class="nav-link" href="#">
+            <span class="icon">
+                <img src="..\static\image\car-front.svg">
+            </span>
+            <span class="description">Vehicles</span>
+        </a>
+        <a class="nav-link" href="#">
+            <span class="icon">
+                <img src="..\static\image\file-earmark-text.svg">
+            </span>
+            <span class="description">Contracts</span>
+        </a>
+        <a class="nav-link" href="#">
+            <span class="icon">
+                <img src="..\static\image\currency-dollar.svg">
+            </span>
+            <span class="description">Payments</span>
+        </a>
+        <a class="nav-link" href="#">
+            <span class="icon">
+                <img src="..\static\image\tools.svg">
+            </span>
+            <span class="description">Repairs</span>
+        </a>
+        <a class="nav-link" href="#">
+            <span class="icon">
+                <img src="..\static\image\bell.svg">
+            </span>
+            <span class="description">Notifications</span>
+        </a>
+    </nav>
+    <li><a href="{% url 'logout' %}">Logout</a></li>
+</div>
