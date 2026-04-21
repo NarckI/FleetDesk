@@ -9,15 +9,19 @@ def home(request):
     return render(request,'home.html', {})
 
 def login_user(request):
+    if request.user.is_authenticated:
+        return redirect('home')
+
     if request.method == 'POST':
         username = request.POST['username']
         password = request.POST['password']
         user = authenticate(username=username, password=password)
         if user is not None:
             login(request, user)
+            messages.success(request, 'You are now logged in')
             return redirect('home')
         else:
-            messages.info(request, 'Username or password is incorrect')
+            messages.error(request, 'Username or password is incorrect')
     return render(request,'login.html', {})
 
 def logout_user(request):
