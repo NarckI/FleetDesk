@@ -65,7 +65,7 @@ body{
 }
 
 .sidebar-divider{
-    border-color: rgb(141, 141, 141);
+    border-color: rgb(187, 187, 187);
     margin-bottom: 11px;
 }
 
@@ -82,6 +82,8 @@ body{
 
 .main-content{
     height: 100%;
-    margin-left: 250px;
-    padding: 20px;
+    margin-left: 270px;
+    margin-right: 20px;
+    padding-left: 20px;
+    padding-top: 10px;
 }
