@@ -10,7 +10,7 @@
 <<<<<<< HEAD
         <a class="nav-link" href="{% url 'driver' %}">
 =======
-        <a class="nav-link {% if request.resolver_match.url_name == 'drivers' %}active{% endif %}" href="#">
+        <a class="nav-link {% if request.resolver_match.url_name == 'driver' %}active{% endif %}" href="{% url 'driver' %}">
 >>>>>>> refs/remotes/origin/main
             <span class="icon">
                 <img src="..\static\image\people.svg">
