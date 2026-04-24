@@ -1,0 +1,3 @@
+# Ignore local Django settings file
+settings.py
+
