@@ -30,20 +30,24 @@ def logout_user(request):
 
 def driver(request):
     if request.user.is_authenticated:
-        return redirect('driver')
+        return render(request, 'driver.html', {})
 
 def repairs(request):
     if request.user.is_authenticated:
-        return redirect('repairs')
+        return render(request, 'repairs.html', {})
 
 def payments(request):
     if request.user.is_authenticated:
-        return redirect('payments')
+        return render(request, 'payments.html', {})
 
 def vehicles(request):
     if request.user.is_authenticated:
-        return redirect('vehicles')
+        return render(request, 'vehicles.html', {})
 
 def contracts(request):
     if request.user.is_authenticated:
-        return redirect('contracts')
+        return render(request, 'contracts.html', {})
+
+def notifications(request):
+    if request.user.is_authenticated:
+        return render(request, 'notifications.html', {})
