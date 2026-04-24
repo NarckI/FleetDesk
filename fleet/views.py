@@ -27,3 +27,23 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     return redirect('login')
+
+def driver(request):
+    if request.user.is_authenticated:
+        return redirect('driver')
+
+def repairs(request):
+    if request.user.is_authenticated:
+        return redirect('repairs')
+
+def payments(request):
+    if request.user.is_authenticated:
+        return redirect('payments')
+
+def vehicles(request):
+    if request.user.is_authenticated:
+        return redirect('vehicles')
+
+def contracts(request):
+    if request.user.is_authenticated:
+        return redirect('contracts')
