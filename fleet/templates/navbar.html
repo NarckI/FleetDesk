@@ -1,5 +1,5 @@
 <div class="sidebar">
-    <a class="navbar-brand fw-bold d-block" href="{% url 'home' %}">Fleet Desk</a>
+    <a class="navbar-brand d-block" href="{% url 'home' %}">Fleet Desk</a>
     <nav class="nav flex-column">
         <a class="nav-link" href="{% url 'home' %}">
             <span class="icon">
@@ -45,8 +45,8 @@
         </a>
     </nav>
 
-    <div class="footer">
-        <hr class="sidebar-divider">
+    <div class="divider">
+        <hr id="sidebar-divider">
         <a class="nav-link" href="{% url 'logout' %}">
             <span class="icon">
                 <img src="../static/image/arrow-bar-right.svg" alt="Logout">
