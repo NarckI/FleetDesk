@@ -1,43 +1,67 @@
 <div class="sidebar">
     <a class="navbar-brand d-block" href="{% url 'home' %}">Fleet Desk</a>
     <nav class="nav flex-column">
-        <a class="nav-link" href="{% url 'home' %}">
+        <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
             <span class="icon">
                 <img src="..\static\image\columns-gap.svg">
             </span>
             <span class="description">Dashboard</span>
         </a>
+<<<<<<< HEAD
         <a class="nav-link" href="{% url 'driver' %}">
+=======
+        <a class="nav-link {% if request.resolver_match.url_name == 'drivers' %}active{% endif %}" href="#">
+>>>>>>> refs/remotes/origin/main
             <span class="icon">
                 <img src="..\static\image\people.svg">
             </span>
             <span class="description">Drivers</span>
         </a>
+<<<<<<< HEAD
         <a class="nav-link" href="{% url 'vehicles' %}">
+=======
+        <a class="nav-link {% if request.resolver_match.url_name == 'drivers' %}active{% endif %}" href="#">
+>>>>>>> refs/remotes/origin/main
             <span class="icon">
                 <img src="..\static\image\car-front.svg">
             </span>
             <span class="description">Vehicles</span>
         </a>
+<<<<<<< HEAD
         <a class="nav-link" href="{% url 'contracts' %}">
+=======
+        <a class="nav-link {% if request.resolver_match.url_name == 'drivers' %}active{% endif %}" href="#">
+>>>>>>> refs/remotes/origin/main
             <span class="icon">
                 <img src="..\static\image\file-earmark-text.svg">
             </span>
             <span class="description">Contracts</span>
         </a>
+<<<<<<< HEAD
         <a class="nav-link" href="{% url 'payments' %}">
+=======
+        <a class="nav-link {% if request.resolver_match.url_name == 'drivers' %}active{% endif %}" href="#">
+>>>>>>> refs/remotes/origin/main
             <span class="icon">
                 <img src="..\static\image\currency-dollar.svg">
             </span>
             <span class="description">Payments</span>
         </a>
+<<<<<<< HEAD
         <a class="nav-link" href="{% url 'repairs' %}">
+=======
+        <a class="nav-link {% if request.resolver_match.url_name == 'drivers' %}active{% endif %}" href="#">
+>>>>>>> refs/remotes/origin/main
             <span class="icon">
                 <img src="..\static\image\tools.svg">
             </span>
             <span class="description">Repairs</span>
         </a>
+<<<<<<< HEAD
         <a class="nav-link" href="{% url 'notifications' %}">
+=======
+        <a class="nav-link {% if request.resolver_match.url_name == 'drivers' %}active{% endif %}" href="#">
+>>>>>>> refs/remotes/origin/main
             <span class="icon">
                 <img src="..\static\image\bell.svg">
             </span>
@@ -54,5 +78,4 @@
             <span class="description">Logout</span>
         </a>
     </div>
-
 </div>
