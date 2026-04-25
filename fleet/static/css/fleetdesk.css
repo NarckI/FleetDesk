@@ -1,6 +1,7 @@
 body{
     background-color: rgb(247, 254, 255);
 }
+
 .box{
     background-color: rgb(255, 255, 255);
     border-radius: 20px;
@@ -29,7 +30,7 @@ body{
 .sidebar .nav-link{
     display: flex;
     align-items: center;
-    gap: 15px;
+    gap: 20px;
     padding: 10px 20px;
     color: white;
     margin: 0px 10px 10px 10px;
