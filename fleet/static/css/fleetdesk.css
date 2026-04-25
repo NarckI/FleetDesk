@@ -9,6 +9,46 @@ body{
     margin-bottom: 10px;
 }
 
+.container-login {
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+    border-radius: 16px;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: 450px;
+    margin: 0 auto;
+    padding: 2em;
+}
+
+.container-login .lock-icon{
+    background-color: #155DFC;
+    border-radius: 50px;
+    padding: 18px;
+    margin-top: 0;
+    margin-bottom: 2em;
+}
+
+.container-login .lock-icon img{
+    width: 30px;
+    height: 30px;
+    filter: invert(1);
+}
+
+.container-login form {
+    width: 100%;
+}
+
+.container-login .form-control{
+    border-radius: 10px;
+}
+
+.container-login .btn {
+    width: 100%;
+    border-radius: 10px;
+}
+
 .sidebar{
     position: fixed;
     top: 0;
@@ -28,7 +68,7 @@ body{
 
 .sidebar .navbar-brand{
     color: white;
-    font-size: 20px;
+    font-size: 24px;
     margin-left: 1em;
     margin-bottom: 1em;
 }
