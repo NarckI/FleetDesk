@@ -18,13 +18,19 @@ body{
     padding-top: 20px;
     background-color: #1a1f2e;
     transition: width 0.3s;
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar .nav {
+    flex: 1;
 }
 
 .sidebar .navbar-brand{
     color: white;
     font-size: 20px;
     margin-left: 1em;
-    margin-bottom: 2em;
+    margin-bottom: 1em;
 }
 
 .sidebar .nav-link{
@@ -66,7 +72,11 @@ body{
     border: none;
     border-top: 1px solid rgb(139, 139, 139);
     opacity: 0.5;
-    margin-top: 12em;
+}
+
+.divider{
+    margin-top: auto;
+    padding-bottom: 5px;
 }
 
 .divider .nav-link {
