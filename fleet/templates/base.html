@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap CSS -->
-    <link href="../static/vendor/bootstrap-5.3.8-dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="../static/css/fleetdesk.css">
+    <link href="{% static 'vendor/bootstrap-5.3.8-dist/css/bootstrap.min.css' %}" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/fleetdesk.css' %}">
     <title>{% block title %}Fleet Desk{% endblock %}</title>
   </head>
   <body>
@@ -26,8 +26,8 @@
     <!-- Optional JavaScript; choose one of the two! -->
 
     <!-- Option 1: Bootstrap Bundle with Popper -->
-    <script src="../static/vendor/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js"></script>
-    <script src="../static/js/main.js"></script>
+    <script src="{% static 'vendor/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js' %}"></script>
+    <script src="{% static 'js/main.js' %}"></script>
 
     {% block scripts %}{% endblock %}
     <!-- Option 2: Separate Popper and Bootstrap JS -->
