@@ -27,9 +27,9 @@ def logout_user(request):
     logout(request)
     return redirect('login')
 
-def driver(request):
+def drivers(request):
     if request.user.is_authenticated:
-        return render(request, 'driver.html', {})
+        return render(request, 'drivers.html', {})
 
 def repairs(request):
     if request.user.is_authenticated:
