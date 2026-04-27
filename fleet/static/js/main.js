@@ -69,16 +69,16 @@ searchInput.addEventListener('input', function() {
 
     rows.forEach(row => {
         const cells = row.querySelectorAll('td');
-        const name = cells[0]?.textContent.toLowerCase();
-        const license = cells[1]?.textContent.toLowerCase();
-        const phone = cells[2]?.textContent.toLowerCase();
-        const email = cells[3]?.textContent.toLowerCase();
+        const first = cells[0]?.textContent.toLowerCase();
+        const second = cells[1]?.textContent.toLowerCase();
+        const third = cells[2]?.textContent.toLowerCase();
+        const fourth = cells[3]?.textContent.toLowerCase();
 
         const match =
-            name.includes(query) ||
-            license.includes(query) ||
-            phone.includes(query) ||
-            email.includes(query);
+            first.includes(query) ||
+            second.includes(query) ||
+            third.includes(query) ||
+            fourth.includes(query);
 
         row.style.display = query === '' || match ? '' : 'none';
     });
