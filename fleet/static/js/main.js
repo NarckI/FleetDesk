@@ -59,3 +59,27 @@ function confirmRepair(pk, name) {
   document.getElementById('repairVehicleName').textContent = name;
   bootstrap.Modal.getOrCreateInstance(document.getElementById('repairConfirmModal')).show();
 }
+
+// ── live search ─────────────────────────────────────────────────────
+const searchInput = document.querySelector('input[name="q"]');
+const rows = document.querySelectorAll('tbody tr');
+
+searchInput.addEventListener('input', function() {
+    const query = this.value.toLowerCase();
+
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        const name = cells[0]?.textContent.toLowerCase();
+        const license = cells[1]?.textContent.toLowerCase();
+        const phone = cells[2]?.textContent.toLowerCase();
+        const email = cells[3]?.textContent.toLowerCase();
+
+        const match =
+            name.includes(query) ||
+            license.includes(query) ||
+            phone.includes(query) ||
+            email.includes(query);
+
+        row.style.display = query === '' || match ? '' : 'none';
+    });
+});
