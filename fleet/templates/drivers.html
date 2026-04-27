@@ -26,19 +26,19 @@
                     {% if q %}<a href="{% url 'drivers' %}" class="btn btn-dark">Clear</a>{% endif %}
                 </div>
             </form>
-
-            <!-- Table -->
+        
+        <!-- Table -->
             <table class="table table-hover mt-3">
                 <thead>
-                    <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">License #</th>
-                        <th scope="col">Phone</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">License Expiry</th>
-                        <th scope="col">Status</th>
-                        <th scope="col" class="text-end">Actions</th>
-                    </tr>
+                <tr>
+                    <th scope="col">Name</th>
+                    <th scope="col">License #</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">License Expiry</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-end">Actions</th>
+                </tr>
                 </thead>
                 <tbody>
                     {% for d in drivers %}
@@ -54,7 +54,8 @@
                                 <button class="btn-action primary" title="Edit" onclick="openEditDriver({{ d.pk }})">
                                     <img src="..\static\image\pencil.svg" alt="Edit">
                                 </button>
-                                <button class="btn-action danger" title="Delete" onclick="confirmDeleteDriver({{ d.pk }}, '{{ d.full_name|escapejs }}')">
+                                <button class="btn-action danger" title="Delete"
+                                        onclick="confirmDeleteDriver({{ d.pk }}, '{{ d.full_name|escapejs }}')">
                                     <img src="..\static\image\trash.svg" alt="Delete">
                                 </button>
                             </div>
@@ -155,7 +156,8 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">License Number <span class="text-danger">*</span></label>
-                            <input type="text" name="license_number" id="editLicenseNumber" class="form-control" required>
+                            <input type="text" name="license_number" id="editLicenseNumber" class="form-control"
+                                   required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Phone</label>
@@ -179,7 +181,8 @@
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">License Expiry <span class="text-danger">*</span></label>
-                            <input type="date" name="license_expiry" id="editLicenseExpiry" class="form-control" required>
+                            <input type="date" name="license_expiry" id="editLicenseExpiry" class="form-control"
+                                   required>
                         </div>
                         <div class="col-md-6">
                             <label class="form-label">Date Joined</label>
@@ -218,5 +221,8 @@
 {% endblock %}
 
 {% block scripts %}
+<script>
+
+</script>
 <script src="{% static 'js/main.js' %}"></script>
 {% endblock %}
