@@ -40,10 +40,10 @@
                         <th scope="col" class="text-end">Actions</th>
                     </tr>
                 </thead>
-                <tbody>
+                <tbody class="align-items-center">
                     {% for d in drivers %}
                     <tr>
-                        <td><span class="fw-semibold">{{ d.full_name }}</span></td>
+                        <td><span class="fw-medium">{{ d.full_name }}</span></td>
                         <td>{{ d.license_number }}</td>
                         <td>{{ d.phone|default:"—" }}</td>
                         <td>{{ d.email|default:"—" }}</td>
@@ -51,10 +51,10 @@
                         <td><span class="badge-status {{ d.status }}">{{ d.status }}</span></td>
                         <td class="text-end">
                             <div class="d-flex gap-1 justify-content-end">
-                                <button class="btn-action primary" title="Edit" onclick="openEditDriver({{ d.pk }})">
+                                <button class="btn-action" title="Edit" onclick="openEditDriver({{ d.pk }})">
                                     <img src="..\static\image\pencil.svg" alt="Edit">
                                 </button>
-                                <button class="btn-action danger" title="Delete"
+                                <button class="btn-action" title="Delete"
                                         onclick="confirmDeleteDriver({{ d.pk }}, '{{ d.full_name|escapejs }}')">
                                     <img src="..\static\image\trash.svg" alt="Delete">
                                 </button>

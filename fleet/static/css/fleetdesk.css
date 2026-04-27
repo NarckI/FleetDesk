@@ -225,7 +225,20 @@ body{
 }
 
 td {
+    vertical-align: middle;
     padding: 16px 8px !important;
+}
+
+.btn-action{
+    border: none;
+    background: none;
+    padding: 10px 10px;
+    display: inline-flex;
+}
+
+.btn-action:hover{
+    background-color: #d9d9d9;
+    border-radius: 10px;
 }
 
 .badge-status {
