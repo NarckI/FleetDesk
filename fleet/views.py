@@ -6,7 +6,7 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.db.models import Q
 from datetime import date
-from .models import Driver
+from .models import Driver, Vehicle
 
 # Create your views here.
 def home(request):
@@ -106,8 +106,8 @@ def vehicles(request):
     qs = Vehicle.objects.all()
     if q:
         qs = qs.filter(Q(plate_number__icontains=q)|Q(brand__icontains=q)|Q(model__icontains=q))
-    ctx = {'vehicles': qs, 'q': q, 'unread_notifications': Notification.objects.filter(is_read=False).count()}
-    return render(request, 'core/vehicles.html', ctx)
+    ctx = {'vehicles': qs, 'q': q}
+    return render(request, 'vehicles.html', ctx)
 
 
 @login_required
