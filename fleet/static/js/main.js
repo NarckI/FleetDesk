@@ -1,4 +1,8 @@
-
+// Generic fetch helper for JSON
+async function fetchJSON(url) {
+  const res = await fetch(url, { headers: { 'X-Requested-With': 'XMLHttpRequest' } });
+  return res.json();
+}
 
 // ── Driver modal helpers ──────────────────────────────────────────────────────
 function openEditDriver(pk) {
