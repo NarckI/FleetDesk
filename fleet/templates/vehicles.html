@@ -21,47 +21,47 @@
         <!--Table-->
         <table>
             <thead>
-            <tr>
-                <th>Plate Number</th>
-                <th>Brand</th>
-                <th>Model</th>
-                <th>Year</th>
-                <th>Type</th>
-                <th>Mileage</th>
-                <th>Last Maintenance</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
+                <tr>
+                    <th>Plate Number</th>
+                    <th>Brand</th>
+                    <th>Model</th>
+                    <th>Year</th>
+                    <th>Type</th>
+                    <th>Mileage</th>
+                    <th>Last Maintenance</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
             </thead>
             <tbody>
-            {% for v in vehicles %}
-            <tr>
-                <td class="fw-semibold">{{ v.plate_number }}</td>
-                <td>{{ v.brand }}</td>
-                <td>{{ v.model }}</td>
-                <td>{{ v.year }}</td>
-                <td>{{ v.get_vehicle_type_display }}</td>
-                <td>{{ v.mileage|default:0 }} km</td>
-                <td>{{ v.last_maintenance|default:"—" }}</td>
-                <td><span class="status-badge badge-{{ v.status }}">{{ v.get_status_display }}</span></td>
-                <td>
-                    <div class="d-flex gap-1">
-                        <button class="btn-action primary" title="Edit" onclick="openEditVehicle({{ v.pk }})">
-                        </button>
-                        <button class="btn-action danger" title="Delete"
-                                onclick="confirmDeleteVehicle({{ v.pk }}, '{{ v.plate_number }}')">
-                        </button>
-                        <button class="btn-action warning" title="Create Repair Log"
-                                onclick="confirmRepair({{ v.pk }}, '{{ v.plate_number }}')">
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="9" class="text-center text-muted py-4">No vehicles found.</td>
-            </tr>
-            {% endfor %}
+                {% for v in vehicles %}
+                <tr>
+                    <td class="fw-semibold">{{ v.plate_number }}</td>
+                    <td>{{ v.brand }}</td>
+                    <td>{{ v.model }}</td>
+                    <td>{{ v.year }}</td>
+                    <td>{{ v.get_vehicle_type_display }}</td>
+                    <td>{{ v.mileage|default:0 }} km</td>
+                    <td>{{ v.last_maintenance|default:"—" }}</td>
+                    <td><span class="status-badge badge-{{ v.status }}">{{ v.get_status_display }}</span></td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            <button class="btn-action primary" title="Edit" onclick="openEditVehicle({{ v.pk }})">
+                            </button>
+                            <button class="btn-action danger" title="Delete"
+                                    onclick="confirmDeleteVehicle({{ v.pk }}, '{{ v.plate_number }}')">
+                            </button>
+                            <button class="btn-action warning" title="Create Repair Log"
+                                    onclick="confirmRepair({{ v.pk }}, '{{ v.plate_number }}')">
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="9" class="text-center text-muted py-4">No vehicles found.</td>
+                </tr>
+                {% endfor %}
             </tbody>
         </table>
     </div>
@@ -264,7 +264,5 @@
             </div>
         </div>
     </div>
-
-
 </main>
 {% endblock %}
