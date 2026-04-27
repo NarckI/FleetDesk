@@ -13,9 +13,16 @@ urlpatterns = [
     path('drivers/<int:pk>/delete/', views.driver_delete, name='driver_delete'),
     path('drivers/<int:pk>/data/', views.driver_data_json, name='driver_data_json'),
 
+    # Vehicles
+    path('vehicles/', views.vehicles, name='vehicles'),
+    path('vehicles/add/', views.vehicle_add, name='vehicle_add'),
+    path('vehicles/<int:pk>/edit/', views.vehicle_edit, name='vehicle_edit'),
+    path('vehicles/<int:pk>/delete/', views.vehicle_delete, name='vehicle_delete'),
+    path('vehicles/<int:pk>/data/', views.vehicle_data_json, name='vehicle_data_json'),
+    path('vehicles/<int:pk>/repair/', views.vehicle_create_repair, name='vehicle_create_repair'),
+
     path('repairs/', views.repairs, name='repairs'),
     path('payments/', views.payments, name='payments'),
-    path('vehicles/', views.vehicles, name='vehicles'),
     path('contracts/', views.contracts, name='contracts'),
     path('notifications/', views.notifications, name='notifications'),
 ]

@@ -27,3 +27,35 @@ function confirmDeleteDriver(pk, name) {
   document.getElementById('deleteDriverName').textContent = name;
   bootstrap.Modal.getOrCreateInstance(document.getElementById('deleteDriverModal')).show();
 }
+
+// ── Vehicle modal helpers ─────────────────────────────────────────────────────
+function openEditVehicle(pk) {
+  fetchJSON('/vehicles/' + pk + '/data/').then(function (d) {
+    document.getElementById('editVehicleForm').action = '/vehicles/' + d.id + '/edit/';
+    document.getElementById('editPlateNumber').value = d.plate_number;
+    document.getElementById('editVehicleRegistration').value = d.vehicle_registration;
+    document.getElementById('editVehicleType').value = d.vehicle_type;
+    document.getElementById('editBrand').value = d.brand;
+    document.getElementById('editModel').value = d.model;
+    document.getElementById('editYear').value = d.year;
+    document.getElementById('editMileage').value = d.mileage;
+    document.getElementById('editLastMaintenance').value = d.last_maintenance;
+    document.getElementById('editVehicleStatus').value = d.status;
+    document.getElementById('editOrExpiry').value = d.or_expiry;
+    document.getElementById('editCrExpiry').value = d.cr_expiry;
+    document.getElementById('editCpcExpiry').value = d.cpc_expiry;
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('editVehicleModal')).show();
+  });
+}
+
+function confirmDeleteVehicle(pk, name) {
+  document.getElementById('deleteVehicleForm').action = '/vehicles/' + pk + '/delete/';
+  document.getElementById('deleteVehicleName').textContent = name;
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('deleteVehicleModal')).show();
+}
+
+function confirmRepair(pk, name) {
+  document.getElementById('repairVehicleForm').action = '/vehicles/' + pk + '/repair/';
+  document.getElementById('repairVehicleName').textContent = name;
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('repairConfirmModal')).show();
+}
