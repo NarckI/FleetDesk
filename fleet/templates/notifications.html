@@ -2,6 +2,17 @@
 
 {% block content %}
 <main class="main-content">
-
+    <div>
+        <div>
+            <h1>Notifications</h1>
+            <p>Stay updated on important alerts and reminders</p>
+        </div>
+        <form method="post" action="{% url 'notification_mark_all_read' %}">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-check-all me-1"></i>Mark All Read
+            </button>
+        </form>
+    </div>
 </main>
 {% endblock %}

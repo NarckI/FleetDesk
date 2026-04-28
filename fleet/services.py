@@ -1,6 +1,6 @@
 from django.utils import timezone
 from datetime import date
-from .models import Contract, Payment
+from .models import Contract, Payment, Driver, Vehicle, Notification
 
 def auto_expire_contracts(today=None):
     today = today or date.today()

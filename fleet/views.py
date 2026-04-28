@@ -561,7 +561,7 @@ def notifications(request):
         'total_count': payment_count + expiry_count,
         'unread_notifications': Notification.objects.filter(is_read=False).count(),
     }
-    return render(request, 'core/notifications.html', ctx)
+    return render(request, 'notifications.html', ctx)
 
 
 @login_required
