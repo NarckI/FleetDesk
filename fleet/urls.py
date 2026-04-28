@@ -21,8 +21,16 @@ urlpatterns = [
     path('vehicles/<int:pk>/data/', views.vehicle_data_json, name='vehicle_data_json'),
     path('vehicles/<int:pk>/repair/', views.vehicle_create_repair, name='vehicle_create_repair'),
 
+    # Contracts
+    path('contracts/', views.contracts, name='contracts'),
+    path('contracts/add/', views.contract_add, name='contract_add'),
+    path('contracts/<int:pk>/edit/', views.contract_edit, name='contract_edit'),
+    path('contracts/<int:pk>/delete/', views.contract_delete, name='contract_delete'),
+    path('contracts/<int:pk>/data/', views.contract_data_json, name='contract_data_json'),
+    path('contracts/drivers/', views.contract_drivers_json, name='contract_drivers_json'),
+    path('contracts/vehicles/', views.contract_vehicles_json, name='contract_vehicles_json'),
+
     path('repairs/', views.repairs, name='repairs'),
     path('payments/', views.payments, name='payments'),
-    path('contracts/', views.contracts, name='contracts'),
     path('notifications/', views.notifications, name='notifications'),
 ]

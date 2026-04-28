@@ -55,3 +55,32 @@ class Vehicle(models.Model):
 
     def __str__(self):
         return f"{self.vehicle} - {self.status}"
+
+#Contracts
+class Contract(models.Model):
+    STATUS_CHOICES = [('active','Active'),('expired','Expired'),('terminated','Terminated')]
+    driver = models.ForeignKey(Driver, on_delete=models.PROTECT, related_name='contracts')
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.PROTECT, related_name='contracts')
+    daily_rate = models.DecimalField(max_digits=10, decimal_places=2)
+    start_date = models.DateField()
+    end_date = models.DateField()
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='active')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Contract #{self.pk} — {self.driver}"
+
+    def save(self, *args, **kwargs):
+        super().save(*args, **kwargs)
+        if self.status == 'active':
+            self.vehicle.status = 'in-use'
+            self.vehicle.save(update_fields=['status'])
+        elif self.status in ('expired','terminated'):
+            still_active = Contract.objects.filter(vehicle=self.vehicle, status='active').exclude(pk=self.pk).exists()
+            if not still_active:
+                self.vehicle.status = 'available'
+                self.vehicle.save(update_fields=['status'])

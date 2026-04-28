@@ -111,6 +111,64 @@ function confirmRepair(pk, name, brand, model) {
   bootstrap.Modal.getOrCreateInstance(document.getElementById('repairConfirmModal')).show();
 }
 
+// ── Contract modal helpers ────────────────────────────────────────────────────
+function openAddContract() {
+  Promise.all([fetchJSON('/contracts/drivers/'), fetchJSON('/contracts/vehicles/')]).then(function (results) {
+    var driverSel = document.getElementById('addContractDriver');
+    var vehicleSel = document.getElementById('addContractVehicle');
+    driverSel.innerHTML = '<option value="">Select driver</option>';
+    vehicleSel.innerHTML = '<option value="">Select vehicle</option>';
+    results[0].drivers.forEach(function (d) {
+      driverSel.innerHTML += '<option value="' + d.id + '">' + d.first_name + ' ' + d.last_name + '</option>';
+    });
+    results[1].vehicles.forEach(function (v) {
+      vehicleSel.innerHTML += '<option value="' + v.id + '">' + v.plate_number + ' - ' + v.brand + ' ' + v.model + '</option>';
+    });
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('addContractModal')).show();
+  });
+}
+
+function openEditContract(pk) {
+  Promise.all([
+    fetchJSON('/contracts/' + pk + '/data/'),
+    fetchJSON('/contracts/drivers/'),
+    fetchJSON('/contracts/vehicles/'),
+  ]).then(function (results) {
+    var d = results[0];
+    var driverSel = document.getElementById('editContractDriver');
+    var vehicleSel = document.getElementById('editContractVehicle');
+
+    // Populate drivers (include current driver even if has active contract)
+    driverSel.innerHTML = '<option value="' + d.driver_id + '">' + d.driver_name + '</option>';
+    results[1].drivers.forEach(function (dr) {
+      if (dr.id !== d.driver_id)
+        driverSel.innerHTML += '<option value="' + dr.id + '">' + dr.first_name + ' ' + dr.last_name + '</option>';
+    });
+
+    // Populate vehicles (include current vehicle even if in-use)
+    vehicleSel.innerHTML = '<option value="' + d.vehicle_id + '">' + d.vehicle_display + '</option>';
+    results[2].vehicles.forEach(function (v) {
+      if (v.id !== d.vehicle_id)
+        vehicleSel.innerHTML += '<option value="' + v.id + '">' + v.plate_number + ' - ' + v.brand + ' ' + v.model + '</option>';
+    });
+
+    document.getElementById('editContractForm').action = '/contracts/' + d.id + '/edit/';
+    document.getElementById('editContractDailyRate').value = d.daily_rate;
+    document.getElementById('editContractStartDate').value = d.start_date;
+    document.getElementById('editContractEndDate').value = d.end_date;
+    document.getElementById('editContractStatus').value = d.status;
+
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('editContractModal')).show();
+  });
+}
+
+function confirmDeleteContract(pk, name) {
+  document.getElementById('deleteContractForm').action = '/contracts/' + pk + '/delete/';
+  document.getElementById('deleteContractName').textContent = name;
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('deleteContractModal')).show();
+}
+
+
 // ── live search ─────────────────────────────────────────────────────
 const searchInput = document.querySelector('input[name="q"]');
 const rows = document.querySelectorAll('tbody tr');

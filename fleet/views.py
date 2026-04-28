@@ -185,6 +185,88 @@ def vehicle_create_repair(request, pk):
     messages.success(request, f'Repair log created for {vehicle.plate_number}.')
     return redirect('repairs')
 
+# ── Contracts ─────────────────────────────────────────────────────────────────
+
+@login_required
+def contracts(request):
+    auto_expire_contracts()
+    q = request.GET.get('q','')
+    qs = Contract.objects.select_related('driver','vehicle').all()
+    if q:
+        qs = qs.filter(Q(driver__first_name__icontains=q)|Q(driver__last_name__icontains=q)|Q(vehicle__plate_number__icontains=q))
+
+    # For dropdowns — filtered
+    available_drivers = Driver.objects.filter(status='active').exclude(
+        contracts__status='active'
+    )
+    available_vehicles = Vehicle.objects.filter(status='available')
+
+    ctx = {
+        'contracts': qs, 'q': q,
+        'available_drivers': available_drivers,
+        'available_vehicles': available_vehicles,
+        'unread_notifications': Notification.objects.filter(is_read=False).count(),
+    }
+    return render(request, 'core/contracts.html', ctx)
+
+
+@login_required
+@require_POST
+def contract_add(request):
+    try:
+        contract = Contract.objects.create(
+            driver_id=request.POST['driver'],
+            vehicle_id=request.POST['vehicle'],
+            daily_rate=Decimal(request.POST['daily_rate']),
+            start_date=request.POST['start_date'],
+            end_date=request.POST['end_date'],
+            status=request.POST.get('status','active'),
+        )
+        # Create today's payment if contract is active today
+        today = date.today()
+        if contract.status == 'active' and contract.start_date <= today <= contract.end_date:
+            Payment.objects.get_or_create(
+                contract=contract, due_date=today,
+                defaults={'amount': contract.daily_rate, 'balance': contract.daily_rate, 'status': 'pending'}
+            )
+        messages.success(request, 'Contract added successfully.')
+    except Exception as e:
+        messages.error(request, f'Error: {e}')
+    return redirect('contracts')
+
+
+@login_required
+@require_POST
+def contract_edit(request, pk):
+    contract = get_object_or_404(Contract, pk=pk)
+    if contract.status == 'terminated':
+        messages.error(request, 'Terminated contracts cannot be edited.')
+        return redirect('contracts')
+    try:
+        contract.driver_id = request.POST['driver']
+        contract.vehicle_id = request.POST['vehicle']
+        contract.daily_rate = Decimal(request.POST['daily_rate'])
+        contract.start_date = request.POST['start_date']
+        contract.end_date = request.POST['end_date']
+        contract.status = request.POST.get('status', contract.status)
+        contract.save()
+        messages.success(request, 'Contract updated.')
+    except Exception as e:
+        messages.error(request, f'Error: {e}')
+    return redirect('contracts')
+
+
+@login_required
+@require_POST
+def contract_delete(request, pk):
+    contract = get_object_or_404(Contract, pk=pk)
+    try:
+        contract.delete()
+        messages.success(request, 'Contract deleted.')
+    except Exception as e:
+        messages.error(request, f'Cannot delete: {e}')
+    return redirect('contracts')
+
 
 def repairs(request):
     if request.user.is_authenticated:
@@ -193,11 +275,6 @@ def repairs(request):
 def payments(request):
     if request.user.is_authenticated:
         return render(request, 'payments.html', {})
-
-
-def contracts(request):
-    if request.user.is_authenticated:
-        return render(request, 'contracts.html', {})
 
 def notifications(request):
     if request.user.is_authenticated:
@@ -230,4 +307,35 @@ def vehicle_data_json(request, pk):
         'or_expiry': str(v.or_expiry) if v.or_expiry else '',
         'cr_expiry': str(v.cr_expiry) if v.cr_expiry else '',
         'cpc_expiry': str(v.cpc_expiry) if v.cpc_expiry else '',
+    })
+
+@login_required
+def contract_drivers_json(request):
+    """Available drivers for contract modal (active, no active contract)"""
+    exclude_ids = Contract.objects.filter(status='active').values_list('driver_id', flat=True)
+    qs = Driver.objects.filter(status='active').exclude(id__in=exclude_ids)
+    return JsonResponse({'drivers': list(qs.values('id','first_name','last_name'))})
+
+
+@login_required
+def contract_vehicles_json(request):
+    """Available vehicles for contract modal"""
+    qs = Vehicle.objects.filter(status='available')
+    return JsonResponse({'vehicles': list(qs.values('id','plate_number','brand','model'))})
+
+
+@login_required
+def contract_data_json(request, pk):
+    """Contract data for edit modal"""
+    c = get_object_or_404(Contract, pk=pk)
+    return JsonResponse({
+        'id': c.id,
+        'driver_id': c.driver_id,
+        'vehicle_id': c.vehicle_id,
+        'daily_rate': str(c.daily_rate),
+        'start_date': str(c.start_date),
+        'end_date': str(c.end_date),
+        'status': c.status,
+        'driver_name': c.driver.full_name,
+        'vehicle_display': str(c.vehicle),
     })

@@ -21,7 +21,51 @@
     </div>
 
     <!--Table-->
+    <table>
+        <thead>
+        <tr>
+            <th>#</th>
+            <th>Driver</th>
+            <th>Vehicle</th>
+            <th>Start Date</th>
+            <th>End Date</th>
+            <th>Daily Rate</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+        </thead>
+        <tbody>
+        {% for c in contracts %}
+        <tr>
+            <td class="text-muted">#{{ c.pk }}</td>
+            <td class="fw-semibold">{{ c.driver.full_name }}</td>
+            <td>{{ c.vehicle.plate_number }} — {{ c.vehicle.brand }} {{ c.vehicle.model }}</td>
+            <td>{{ c.start_date }}</td>
+            <td>{{ c.end_date }}</td>
+            <td>₱{{ c.daily_rate|floatformat:0 }}</td>
+            <td><span class="status-badge badge-{{ c.status }}">{{ c.status }}</span></td>
+            <td>
+                <div class="d-flex gap-1">
+                    {% if c.status != 'terminated' %}
+                    <button class="btn-action primary" title="Edit" onclick="openEditContract({{ c.pk }})">
+                        <i class="bi bi-pencil"></i>
+                    </button>
+                    {% endif %}
+                    <button class="btn-action danger" title="Delete"
+                            onclick="confirmDeleteContract({{ c.pk }}, 'Contract #{{ c.pk }}')">
+                        <i class="bi bi-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="8" class="text-center text-muted py-4">No contracts found.</td>
+        </tr>
+        {% endfor %}
+        </tbody>
+    </table>
 
-    
+
 </main>
 {% endblock %}
