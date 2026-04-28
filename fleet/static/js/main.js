@@ -56,9 +56,11 @@ function confirmDeleteVehicle(pk, name, brand, model) {
   bootstrap.Modal.getOrCreateInstance(document.getElementById('deleteVehicleModal')).show();
 }
 
-function confirmRepair(pk, name) {
+function confirmRepair(pk, name, brand, model) {
   document.getElementById('repairVehicleForm').action = '/vehicles/' + pk + '/repair/';
   document.getElementById('repairVehicleName').textContent = name;
+  document.getElementById('repairVehicleBrand').textContent = brand;
+  document.getElementById('repairVehicleModel').textContent = model;
   bootstrap.Modal.getOrCreateInstance(document.getElementById('repairConfirmModal')).show();
 }
 
