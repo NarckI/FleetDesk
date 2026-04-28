@@ -30,7 +30,7 @@
         {% csrf_token %}
         {% for message in messages %}
             {% if 'login' in message.tags %}
-                <div class="error-message mb-4 h6">{{ message }}</div>
+                <div class="error-message mb-4 h6 alert-dismissible fade show">{{ message }}</div>
             {% endif %}
         {% endfor %}
         <button class="btn btn-primary mb-4" type="submit">Sign in</button>

@@ -4,6 +4,53 @@ async function fetchJSON(url) {
   return res.json();
 }
 
+// ── Render Django messages as Bootstrap toasts (reads JSON from template) ──────
+document.addEventListener('DOMContentLoaded', function() {
+  try {
+    var msgsEl = document.getElementById('django-messages');
+    var container = document.getElementById('toast-container');
+    if (!msgsEl || !container) return;
+    var msgs = JSON.parse(msgsEl.textContent || '[]');
+    msgs.forEach(function(m) {
+      var tags = (m.tags || '').toLowerCase();
+      var bgClass = 'bg-light text-dark';
+      var useWhiteClose = false;
+      if (tags.indexOf('success') !== -1) { bgClass = 'bg-success text-white'; useWhiteClose = true; }
+      else if (tags.indexOf('error') !== -1 || tags.indexOf('danger') !== -1) { bgClass = 'bg-danger text-white'; useWhiteClose = true; }
+      else if (tags.indexOf('warning') !== -1) { bgClass = 'bg-warning text-dark'; }
+      else if (tags.indexOf('info') !== -1) { bgClass = 'bg-info text-dark'; }
+
+      var toastEl = document.createElement('div');
+      toastEl.className = 'toast align-items-center ' + bgClass + ' border-0 mb-2';
+      toastEl.setAttribute('role','alert');
+      toastEl.setAttribute('aria-live','assertive');
+      toastEl.setAttribute('aria-atomic','true');
+      toastEl.setAttribute('data-bs-autohide','true');
+      toastEl.setAttribute('data-bs-delay','3000');
+
+      var inner = document.createElement('div');
+      inner.className = 'd-flex';
+      var body = document.createElement('div');
+      body.className = 'toast-body';
+      body.textContent = m.message || '';
+      var btn = document.createElement('button');
+      btn.type = 'button';
+      btn.className = 'btn-close me-2 m-auto' + (useWhiteClose ? ' btn-close-white' : '');
+      btn.setAttribute('data-bs-dismiss','toast');
+      btn.setAttribute('aria-label','Close');
+
+      inner.appendChild(body);
+      inner.appendChild(btn);
+      toastEl.appendChild(inner);
+      container.appendChild(toastEl);
+
+      try { var t = new bootstrap.Toast(toastEl); t.show(); } catch (e) { /* bootstrap missing */ }
+    });
+  } catch (e) {
+    console.error('Could not render django messages as toasts', e);
+  }
+});
+
 // ── Driver modal helpers ──────────────────────────────────────────────────────
 function openEditDriver(pk) {
   fetchJSON('/drivers/' + pk + '/data/').then(function (d) {
