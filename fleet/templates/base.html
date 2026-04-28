@@ -29,6 +29,15 @@
     <script src="{% static 'vendor/bootstrap-5.3.8-dist/js/bootstrap.bundle.min.js' %}"></script>
     <script src="{% static 'js/main.js' %}"></script>
 
+    <!-- Container for toasts; messages JSON is stored in the script below and handled by main.js -->
+    <div id="toast-container" class="position-fixed bottom-0 end-0 p-3" style="z-index:1080;"></div>
+
+    <script id="django-messages" type="application/json">[
+        {% for message in messages %}
+        {"tags": "{{ message.tags|escapejs }}", "message": "{{ message|escapejs }}" }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ]</script>
+
     {% block scripts %}{% endblock %}
     <!-- Option 2: Separate Popper and Bootstrap JS -->
     <!--

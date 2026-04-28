@@ -61,7 +61,7 @@
                                     <img src="{% static 'image/trash.svg' %}" alt="Delete">
                                 </button>
                                 <button class="btn-action warning" title="Create Repair Log"
-                                        onclick="confirmRepair({{ v.pk }}, '{{ v.plate_number }}')">
+                                        onclick="confirmRepair({{ v.pk }}, '{{ v.plate_number }}', '{{ v.brand }}', '{{ v.model }}')">
                                     <img src="{% static 'image/tools.svg' %}" alt="Repair">
                                 </button>
                             </div>
@@ -266,7 +266,7 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    Are you sure you want to add a repair log for vehicle <strong id="repairVehicleName"></strong>? The
+                    Are you sure you want to add a repair log for vehicle <strong id="repairVehicleBrand"></strong> <strong id="repairVehicleModel"></strong> (<strong id="repairVehicleName"></strong>)? The
                     vehicle status will be set to <em>Maintenance</em>.
                 </div>
                 <div class="modal-footer">
