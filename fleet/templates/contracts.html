@@ -1,5 +1,27 @@
 {% extends 'base.html' %}
+{% block title %}Contracts — Fleet Desk{% endblock %}
 
 {% block content %}
-<h1>sds</h1>
+<main class="main-content">
+    <div>
+        <h1>Contract Management</h1>
+        <p>Manage driver and vehicle contracts</p>
+    </div>
+    <button class="btn btn-primary" onclick="openAddContract()">
+        <i class="bi bi-plus-lg me-1"></i>Add Contract
+    </button>
+    <!--Search-->
+    <div class="table-card mb-3 p-3">
+        <form method="get" class="d-flex gap-2">
+            <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Search vehicles…"
+                   style="max-width:400px;">
+            <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
+            {% if q %}<a href="{% url 'contracts' %}" class="btn btn-outline-secondary">Clear</a>{% endif %}
+        </form>
+    </div>
+
+    <!--Table-->
+
+    
+</main>
 {% endblock %}
