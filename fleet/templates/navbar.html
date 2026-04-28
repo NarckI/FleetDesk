@@ -8,41 +8,50 @@
             </span>
             <span class="description">Dashboard</span>
         </a>
-        <a class="nav-link {% if request.resolver_match.url_name == 'drivers' %}active{% endif %}" href="{% url 'drivers' %}">
+        <a class="nav-link {% if request.resolver_match.url_name == 'drivers' %}active{% endif %}"
+           href="{% url 'drivers' %}">
             <span class="icon">
                 <img src="{% static 'image/people.svg' %}" alt="Drivers">
             </span>
             <span class="description">Drivers</span>
         </a>
-        <a class="nav-link {% if request.resolver_match.url_name == 'vehicles' %}active{% endif %}" href="{% url 'vehicles' %}">
+        <a class="nav-link {% if request.resolver_match.url_name == 'vehicles' %}active{% endif %}"
+           href="{% url 'vehicles' %}">
             <span class="icon">
                 <img src="{% static 'image/car-front.svg' %}" alt="Vehicles">
             </span>
             <span class="description">Vehicles</span>
         </a>
-        <a class="nav-link {% if request.resolver_match.url_name == 'contracts' %}active{% endif %}" href="{% url 'contracts' %}">
+        <a class="nav-link {% if request.resolver_match.url_name == 'contracts' %}active{% endif %}"
+           href="{% url 'contracts' %}">
             <span class="icon">
                 <img src="{% static 'image/file-earmark-text.svg' %}" alt="Contracts">
             </span>
             <span class="description">Contracts</span>
         </a>
-        <a class="nav-link {% if request.resolver_match.url_name == 'payments' %}active{% endif %}" href="{% url 'payments' %}">
+        <a class="nav-link {% if request.resolver_match.url_name == 'payments' %}active{% endif %}"
+           href="{% url 'payments' %}">
             <span class="icon">
                 <img src="{% static 'image/currency-dollar.svg' %}" alt="Payments">
             </span>
             <span class="description">Payments</span>
         </a>
-        <a class="nav-link {% if request.resolver_match.url_name == 'repairs' %}active{% endif %}" href="{% url 'repairs' %}">
+        <a class="nav-link {% if request.resolver_match.url_name == 'repairs' %}active{% endif %}"
+           href="{% url 'repairs' %}">
             <span class="icon">
                 <img src="{% static 'image/tools.svg' %}" alt="Repairs">
             </span>
             <span class="description">Repairs</span>
         </a>
-        <a class="nav-link {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}" href="{% url 'notifications' %}">
+        <a class="nav-link {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}"
+           href="{% url 'notifications' %}">
             <span class="icon">
                 <img src="{% static 'image/bell.svg' %}" alt="Notifications">
             </span>
             <span class="description">Notifications</span>
+            {% if unread_notifications > 0 %}
+            <span class="badge bg-danger ms-1">{{ unread_notifications }}</span>
+            {% endif %}
         </a>
     </nav>
 
