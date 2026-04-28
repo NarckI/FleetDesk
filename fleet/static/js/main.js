@@ -129,6 +129,10 @@ function openAddContract() {
 }
 
 function openEditContract(pk) {
+  var modalEl = document.getElementById('editContractModal');
+  var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+  modal.show();
+
   Promise.all([
     fetchJSON('/contracts/' + pk + '/data/'),
     fetchJSON('/contracts/drivers/'),
@@ -141,15 +145,17 @@ function openEditContract(pk) {
     // Populate drivers (include current driver even if has active contract)
     driverSel.innerHTML = '<option value="' + d.driver_id + '">' + d.driver_name + '</option>';
     results[1].drivers.forEach(function (dr) {
-      if (dr.id !== d.driver_id)
+      if (dr.id !== d.driver_id) {
         driverSel.innerHTML += '<option value="' + dr.id + '">' + dr.first_name + ' ' + dr.last_name + '</option>';
+      }
     });
 
     // Populate vehicles (include current vehicle even if in-use)
     vehicleSel.innerHTML = '<option value="' + d.vehicle_id + '">' + d.vehicle_display + '</option>';
     results[2].vehicles.forEach(function (v) {
-      if (v.id !== d.vehicle_id)
+      if (v.id !== d.vehicle_id) {
         vehicleSel.innerHTML += '<option value="' + v.id + '">' + v.plate_number + ' - ' + v.brand + ' ' + v.model + '</option>';
+      }
     });
 
     document.getElementById('editContractForm').action = '/contracts/' + d.id + '/edit/';
@@ -157,8 +163,8 @@ function openEditContract(pk) {
     document.getElementById('editContractStartDate').value = d.start_date;
     document.getElementById('editContractEndDate').value = d.end_date;
     document.getElementById('editContractStatus').value = d.status;
-
-    bootstrap.Modal.getOrCreateInstance(document.getElementById('editContractModal')).show();
+  }).catch(function (err) {
+    console.error('Failed to load contract edit data', err);
   });
 }
 
