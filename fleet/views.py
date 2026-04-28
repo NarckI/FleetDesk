@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.db.models import Q, Sum, Case, When, Value, IntegerField
 from decimal import Decimal
 from datetime import date
-from .models import Driver, Vehicle, Contract, Repair, Payment, Notification
+from .models import Driver, Vehicle, Contract, Payment, Repair, Notification
 from .services import auto_expire_contracts, run_daily_tasks, mark_overdue_payments, generate_daily_payments
 
 
@@ -249,22 +249,22 @@ def contracts(request):
 def contract_add(request):
     try:
         start_date = date.fromisoformat(request.POST['start_date'])
-        end_date = date.fromisoformat(request.POST['end_date'])
         contract = Contract.objects.create(
             driver_id=request.POST['driver'],
             vehicle_id=request.POST['vehicle'],
             daily_rate=Decimal(request.POST['daily_rate']),
-            start_date=start_date,
-            end_date=end_date,
+            start_date=request.POST['start_date'],
+            end_date=request.POST['end_date'],
             status=request.POST.get('status','active'),
         )
         # Create today's payment if contract is active today
         today = date.today()
-        if contract.status == 'active' and contract.start_date <= today <= contract.end_date:
+        if contract.status == 'active' and start_date == today:
             Payment.objects.get_or_create(
                 contract=contract, due_date=today,
                 defaults={'amount': contract.daily_rate, 'balance': contract.daily_rate, 'status': 'pending'}
             )
+            messages.success(request, 'Payment generated successfully.')
         messages.success(request, 'Contract added successfully.')
     except Exception as e:
         messages.error(request, f'Error: {e}')

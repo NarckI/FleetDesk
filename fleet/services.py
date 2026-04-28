@@ -13,6 +13,7 @@ def run_daily_tasks():
     auto_expire_contracts(today)
     mark_overdue_payments()
     generate_daily_payments()
+    generate_notifications()
 
 def mark_overdue_payments(today=None):
     today = today or date.today()
