@@ -47,6 +47,44 @@
         </a>
     </div>
 
-    
+    <!-- Notification List -->
+    {% for n in notifications %}
+    <div class="notif-item notif-{{ n.severity }} {% if n.is_read %}read{% endif %} mb-2">
+        <div class="d-flex align-items-start justify-content-between gap-3">
+            <div class="d-flex align-items-start gap-3">
+                <div class="mt-1">
+                    {% if n.notification_type == 'payment_overdue' %}
+                    <i class="bi bi-credit-card-fill text-danger fs-5"></i>
+                    {% else %}
+                    <i class="bi bi-calendar-x-fill text-warning fs-5"></i>
+                    {% endif %}
+                </div>
+                <div>
+                    <div class="fw-semibold mb-1">
+                        {{ n.title }}
+                        <span class="badge ms-2 {% if n.severity == 'high' %}bg-danger{% elif n.severity == 'medium' %}bg-warning text-dark{% else %}bg-info{% endif %}"
+                              style="font-size:0.7rem;">
+            {{ n.severity|capfirst }}
+          </span>
+                    </div>
+                    <div class="text-muted small">{{ n.message }}</div>
+                    <div class="text-muted" style="font-size:0.75rem;">{{ n.created_at|date:"M d, Y H:i" }}</div>
+                </div>
+            </div>
+            {% if not n.is_read %}
+            <form method="post" action="{% url 'notification_mark_read' n.pk %}" style="display:inline;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-sm btn-outline-secondary text-nowrap">Mark Read</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+    {% empty %}
+    <div class="text-center text-muted py-5">
+        <i class="bi bi-bell-slash fs-1 d-block mb-2"></i>
+        No notifications.
+    </div>
+    {% endfor %}
+
 </main>
 {% endblock %}
