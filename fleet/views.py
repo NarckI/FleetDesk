@@ -59,7 +59,14 @@ def home(request):
 @login_required
 def drivers(request):
     q = request.GET.get('q','')
-    qs = Driver.objects.all()
+    qs = Driver.objects.all().annotate(
+        status_order=Case(
+            When(status='suspended', then=Value(2)),
+            When(status='inactive', then=Value(1)),
+            default=Value(0),
+            output_field=IntegerField(),
+        )
+    ).order_by('status_order', '-created_at')
     if q:
         qs = qs.filter(Q(first_name__icontains=q)|Q(last_name__icontains=q)|Q(license_number__icontains=q)|Q(phone__icontains=q)|Q(email__icontains=q))
     ctx = {'drivers': qs, 'q': q, 'unread_notifications': Notification.objects.filter(is_read=False).count()}
