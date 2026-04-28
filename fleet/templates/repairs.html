@@ -147,12 +147,8 @@
                                     {% for item in items %}
                                     <div class="col-md-6">
                                         <div class="form-check">
-                                            <input class="form-check-input checklist-item" type="checkbox"
-                                                   name="checklist" value="{{ item }}"
-                                                   id="cl_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
-                                            <label class="form-check-label small"
-                                                   for="cl_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">{{
-                                                item }}</label>
+                                            <input class="form-check-input checklist-item" type="checkbox" name="checklist" value="{{ item }}" id="cl_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">
+                                            <label class="form-check-label small" for="cl_{{ forloop.parentloop.counter }}_{{ forloop.counter }}">{{ item }}</label>
                                         </div>
                                     </div>
                                     {% endfor %}
