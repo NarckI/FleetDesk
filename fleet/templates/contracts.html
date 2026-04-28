@@ -128,48 +128,48 @@
     </div>
     <!-- Edit Contract Modal -->
     <div class="modal fade" id="editContractModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
-                <div>
+                <div class="modal-header">
                     <h5 class="modal-title fw-bold">Edit Contract</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form method="post" id="editContractForm">
                     {% csrf_token %}
-                    <div>
-                        <div>
-                            <label>Driver<span class="text-danger">*</span></label>
-                            <select name="driver" id="editContractDriver" required>
-                                <option value="">Select Driver</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>Vehicle<span class="text-danger">*</span></label>
-                            <select name="vehicle" id="editContractVehicle" required>
-                                <option value="">Select Vehicle</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>Daily Rate (₱)<span class="text-danger">*</span></label>
-                            <input type="number" name="daily_rate" class="form-control" id="editContractDailyRate"
-                                   required>
-                        </div>
-                        <div>
-                            <label>Status</label>
-                            <select name="status" id="editContractStatus">
-                                <option value="active">Active</option>
-                                <option value="expired">Expired</option>
-                                <option value="terminated">Terminated</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>Start Date<span class="text-danger">*</span></label>
-                            <input type="date" name="start_date" class="form-control" id="editContractStartDate"
-                                   required>
-                        </div>
-                        <div>
-                            <label>End Date<span class="text-danger">*</span></label>
-                            <input type="date" name="end_date" class="form-control" id="editContractEndDate" required>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Driver<span class="text-danger">*</span></label>
+                                <select name="driver" id="editContractDriver" class="form-select" required>
+                                    <option value="">Select Driver</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Vehicle<span class="text-danger">*</span></label>
+                                <select name="vehicle" id="editContractVehicle" class="form-select" required>
+                                    <option value="">Select Vehicle</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Daily Rate (₱)<span class="text-danger">*</span></label>
+                                <input type="number" name="daily_rate" class="form-control" id="editContractDailyRate"required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Status</label>
+                                <select name="status" id="editContractStatus" class="form-select">
+                                    <option value="active">Active</option>
+                                    <option value="expired">Expired</option>
+                                    <option value="terminated">Terminated</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Start Date<span class="text-danger">*</span></label>
+                                <input type="date" name="start_date" class="form-control" id="editContractStartDate"required>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">End Date<span class="text-danger">*</span></label>
+                                <input type="date" name="end_date" class="form-control" id="editContractEndDate" required>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel
