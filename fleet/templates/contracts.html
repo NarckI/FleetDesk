@@ -3,68 +3,74 @@
 
 {% block content %}
 <main class="main-content">
-    <div>
-        <h1>Contract Management</h1>
-        <p>Manage driver and vehicle contracts</p>
-    </div>
-    <button class="btn btn-primary" onclick="openAddContract()">
-        <i class="bi bi-plus-lg me-1"></i>Add Contract
-    </button>
-    <!--Search-->
-    <div class="table-card mb-3 p-3">
-        <form method="get" class="d-flex gap-2">
-            <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Search vehicles…"
-                   style="max-width:400px;">
-            <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
-            {% if q %}<a href="{% url 'contracts' %}" class="btn btn-outline-secondary">Clear</a>{% endif %}
-        </form>
-    </div>
+    <div class="container-md my-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h3 class="h3">Contract Management</h3>
+                <p class="text-muted mb-0">Manage driver and vehicle contracts</p>
+            </div>    
+            <button class="btn btn-dark" onclick="openAddContract()">+ Add Contract</button>
+        </div>
 
-    <!--Table-->
-    <table>
-        <thead>
-        <tr>
-            <th>#</th>
-            <th>Driver</th>
-            <th>Vehicle</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Daily Rate</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for c in contracts %}
-        <tr>
-            <td class="text-muted">#{{ c.pk }}</td>
-            <td class="fw-semibold">{{ c.driver.full_name }}</td>
-            <td>{{ c.vehicle.plate_number }} — {{ c.vehicle.brand }} {{ c.vehicle.model }}</td>
-            <td>{{ c.start_date }}</td>
-            <td>{{ c.end_date }}</td>
-            <td>₱{{ c.daily_rate|floatformat:0 }}</td>
-            <td><span class="status-badge badge-{{ c.status }}">{{ c.status }}</span></td>
-            <td>
-                <div class="d-flex gap-1">
-                    {% if c.status != 'terminated' %}
-                    <button class="btn-action primary" title="Edit" onclick="openEditContract({{ c.pk }})">
-                        <i class="bi bi-pencil"></i>
+        <!--Search-->
+        <div class="box mt-4 p-3">
+            <form method="get" class="d-flex gap-2">
+                <div class="input-group">
+                    <button class="input-group-text bg-white border-0" type="submit">
+                        <img src="..\static\image\search.svg" alt="Search">
                     </button>
-                    {% endif %}
-                    <button class="btn-action danger" title="Delete"
-                            onclick="confirmDeleteContract({{ c.pk }}, 'Contract #{{ c.pk }}')">
-                        <i class="bi bi-trash"></i>
-                    </button>
+                    <input type="search" name="q" value="{{ q }}" class="form-control border-0" placeholder="Search vehicles…">
+                    {% if q %}<a href="{% url 'contracts' %}" class="btn btn-outline-secondary">Clear</a>{% endif %}
                 </div>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="8" class="text-center text-muted py-4">No contracts found.</td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            </form>
+
+            <!--Table-->
+            <table class="table table-hover mt-3">
+                <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Driver</th>
+                    <th>Vehicle</th>
+                    <th>Start Date</th>
+                    <th>End Date</th>
+                    <th>Daily Rate</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                {% for c in contracts %}
+                <tr>
+                    <td class="text-muted">#{{ c.pk }}</td>
+                    <td class="fw-semibold">{{ c.driver.full_name }}</td>
+                    <td>{{ c.vehicle.plate_number }} — {{ c.vehicle.brand }} {{ c.vehicle.model }}</td>
+                    <td>{{ c.start_date }}</td>
+                    <td>{{ c.end_date }}</td>
+                    <td>₱{{ c.daily_rate|floatformat:0 }}</td>
+                    <td><span class="status-badge badge-{{ c.status }}">{{ c.status }}</span></td>
+                    <td>
+                        <div class="d-flex gap-1">
+                            {% if c.status != 'terminated' %}
+                            <button class="btn-action primary" title="Edit" onclick="openEditContract({{ c.pk }})">
+                                <i class="bi bi-pencil"></i>
+                            </button>
+                            {% endif %}
+                            <button class="btn-action danger" title="Delete"
+                                    onclick="confirmDeleteContract({{ c.pk }}, 'Contract #{{ c.pk }}')">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="8" class="text-center text-muted py-4">No contracts found.</td>
+                </tr>
+                {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <!--- Add contract modal-->
     <div class="modal fade" id="addContractModal" tabindex="-1">
