@@ -50,11 +50,11 @@
                     <button class="btn-action primary" title="Edit" onclick="openEditContract({{ c.pk }})">
                         <i class="bi bi-pencil"></i>
                     </button>
-                    {% endif %}
-                    <button class="btn-action danger" title="Delete"
-                            onclick="confirmDeleteContract({{ c.pk }}, 'Contract #{{ c.pk }}')">
+                    <button class="btn-action danger" title="Terminate"
+                            onclick="confirmTerminateContract({{ c.pk }}, 'Contract #{{ c.pk }}')">
                         <i class="bi bi-trash"></i>
                     </button>
+                    {% endif %}
                 </div>
             </td>
         </tr>
@@ -171,21 +171,21 @@
             </div>
         </div>
     </div>
-    <!-- Delete Contract Confirm -->
-    <div class="modal fade" id="deleteContractModal" tabindex="-1">
+    <!-- Terminate Contract Confirm -->
+    <div class="modal fade" id="terminateContractModal" tabindex="-1">
         <div class="modal-dialog modal-sm">
             <div class="modal-content">
                 <div>
-                    <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Delete
+                    <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Terminate
                         Contract</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
-                <div>Are you sure you want to delete <strong id="deleteContractName"></strong>?</div>
+                <div>Are you sure you want to terminate <strong id="terminateContractName"></strong>?</div>
                 <div>
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <form method="post" id="deleteContractForm" style="display:inline;">
+                    <form method="post" id="terminateContractForm" style="display:inline;">
                         {% csrf_token %}
-                        <button type="submit" class="btn btn-danger">Delete</button>
+                        <button type="submit" class="btn btn-danger">Terminate</button>
                     </form>
                 </div>
             </div>

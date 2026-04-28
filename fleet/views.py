@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.contrib import messages
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, Case, When, Value, IntegerField
 from decimal import Decimal
 from datetime import date
 from .models import Driver, Vehicle, Contract, Repair, Payment
@@ -212,7 +212,13 @@ def vehicle_create_repair(request, pk):
 def contracts(request):
     auto_expire_contracts()
     q = request.GET.get('q','')
-    qs = Contract.objects.select_related('driver','vehicle').all()
+    qs = Contract.objects.select_related('driver','vehicle').annotate(
+        status_order=Case(
+            When(status='terminated', then=Value(1)),
+            default=Value(0),
+            output_field=IntegerField(),
+        )
+    ).order_by('status_order', '-created_at')
     if q:
         qs = qs.filter(Q(driver__first_name__icontains=q)|Q(driver__last_name__icontains=q)|Q(vehicle__plate_number__icontains=q))
 
@@ -281,8 +287,9 @@ def contract_edit(request, pk):
 def contract_delete(request, pk):
     contract = get_object_or_404(Contract, pk=pk)
     try:
-        contract.delete()
-        messages.success(request, 'Contract deleted.')
+        contract.status = 'terminated'
+        contract.save(update_fields=['status'])
+        messages.success(request, 'Contract terminated. Payment history preserved.')
     except Exception as e:
         messages.error(request, f'Cannot delete: {e}')
     return redirect('contracts')
@@ -368,8 +375,11 @@ def payment_partial(request, pk):
 @require_POST
 def payment_delete(request, pk):
     payment = get_object_or_404(Payment, pk=pk)
-    payment.delete()
-    messages.success(request, 'Payment deleted.')
+    try:
+        payment.delete()
+        messages.success(request, 'Payment deleted.')
+    except Exception as e:
+        messages.error(request, f'Cannot delete payment: {e}')
     return redirect('payments')
 
 

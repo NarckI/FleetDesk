@@ -173,10 +173,10 @@ function openEditContract(pk) {
   });
 }
 
-function confirmDeleteContract(pk, name) {
-  document.getElementById('deleteContractForm').action = '/contracts/' + pk + '/delete/';
-  document.getElementById('deleteContractName').textContent = name;
-  bootstrap.Modal.getOrCreateInstance(document.getElementById('deleteContractModal')).show();
+function confirmTerminateContract(pk, name) {
+  document.getElementById('terminateContractForm').action = '/contracts/' + pk + '/delete/';
+  document.getElementById('terminateContractName').textContent = name;
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('terminateContractModal')).show();
 }
 
 // ── Payment modal helpers ─────────────────────────────────────────────────────
