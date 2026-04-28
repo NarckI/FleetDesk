@@ -8,13 +8,10 @@ from django.db.models import Q
 from decimal import Decimal
 from datetime import date
 from .models import Driver, Vehicle, Contract, Repair
-from .services import auto_expire_contracts
+from .services import auto_expire_contracts, run_daily_tasks
+
 
 # Create your views here.
-def home(request):
-    if not request.user.is_authenticated:
-        return redirect('login')
-    return render(request,'home.html', {})
 
 def login_user(request):
     if request.user.is_authenticated:
@@ -34,6 +31,21 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     return redirect('login')
+
+# ── Dashboard ──────────────────────────────────────────────────────────────────
+@login_required
+def home(request):
+    run_daily_tasks()
+    recent_contracts = Contract.objects.select_related('driver','vehicle').order_by('-created_at')[:6]
+    ctx = {
+        'total_drivers': Driver.objects.count(),
+        'active_drivers': Driver.objects.filter(status='active').count(),
+        'total_vehicles': Vehicle.objects.count(),
+        'available_vehicles': Vehicle.objects.filter(status='available').count(),
+        'active_contracts': Contract.objects.filter(status='active').count(),
+        'recent_contracts': recent_contracts,
+    }
+    return render(request, 'home.html', ctx)
 
 # ── Drivers ──────────────────────────────────────────────────────────────────
 
