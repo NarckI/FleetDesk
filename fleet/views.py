@@ -6,7 +6,8 @@ from django.http import JsonResponse
 from django.contrib import messages
 from django.db.models import Q
 from datetime import date
-from .models import Driver, Vehicle
+from .models import Driver, Vehicle, Contract
+from .services import auto_expire_contracts
 
 # Create your views here.
 def home(request):
@@ -205,9 +206,8 @@ def contracts(request):
         'contracts': qs, 'q': q,
         'available_drivers': available_drivers,
         'available_vehicles': available_vehicles,
-        'unread_notifications': Notification.objects.filter(is_read=False).count(),
     }
-    return render(request, 'core/contracts.html', ctx)
+    return render(request, 'contracts.html', ctx)
 
 
 @login_required
