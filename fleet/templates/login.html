@@ -13,7 +13,7 @@
 <div class="container-login">
 
     <form method="POST" action="{% url 'login' %}">
-        {% csrf_token %}
+        
         <div class="d-flex flex-column align-items-center">
             <span class="lock-icon">
                 <img src="..\static\image\lock.svg" alt="Lock">
@@ -26,11 +26,12 @@
         <input type="text" class="form-control mb-4" name="username" placeholder="Enter your username" required>
         <h6 class="h6">Password</h6>
         <input type="password" class="form-control mb-4" name="password" placeholder="Enter your password" required>
+        {% csrf_token %}
         {% for message in messages %}
             <div class="error-message mb-4 h6">{{ message }}</div>
-        {% endfor %}
+        {% endfor %}   
+        <button class="btn btn-primary mb-4" type="submit">Sign in</button>
     </form>
-        <button class="btn btn-primary mb-4" type="submit">Sign in</button>    
 </div>
 
 {% endblock %}
