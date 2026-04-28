@@ -49,6 +49,15 @@ body{
     border-radius: 10px;
 }
 
+.container-login .error-message {
+    border: 1px solid red;
+    display: flex;
+    justify-content: center;
+    padding: 10px;
+    border-radius: 10px;
+    color: red;
+}
+
 .sidebar{
     position: fixed;
     top: 0;
