@@ -31,10 +31,6 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     return redirect('login')
-
-def notifications(request):
-    if request.user.is_authenticated:
-        return render(request, 'notifications.html', {})
 # ── Dashboard ──────────────────────────────────────────────────────────────────
 @login_required
 def home(request):
@@ -54,6 +50,7 @@ def home(request):
         'pending_payments': Payment.objects.filter(status='pending').count(),
         'overdue_payments': Payment.objects.filter(status='overdue').count(),
         'recent_payments': recent_payments,
+        'unread_notifications': Notification.objects.filter(is_read=False).count(),
     }
     return render(request, 'home.html', ctx)
 
@@ -65,7 +62,7 @@ def drivers(request):
     qs = Driver.objects.all()
     if q:
         qs = qs.filter(Q(first_name__icontains=q)|Q(last_name__icontains=q)|Q(license_number__icontains=q)|Q(phone__icontains=q)|Q(email__icontains=q))
-    ctx = {'drivers': qs, 'q': q}
+    ctx = {'drivers': qs, 'q': q, 'unread_notifications': Notification.objects.filter(is_read=False).count()}
     return render(request, 'drivers.html', ctx)
 
 
@@ -130,7 +127,7 @@ def vehicles(request):
     qs = Vehicle.objects.all()
     if q:
         qs = qs.filter(Q(plate_number__icontains=q)|Q(brand__icontains=q)|Q(model__icontains=q))
-    ctx = {'vehicles': qs, 'q': q}
+    ctx = {'vehicles': qs, 'q': q, 'unread_notifications': Notification.objects.filter(is_read=False).count()}
     return render(request, 'vehicles.html', ctx)
 
 
@@ -235,6 +232,7 @@ def contracts(request):
         'contracts': qs, 'q': q,
         'available_drivers': available_drivers,
         'available_vehicles': available_vehicles,
+        'unread_notifications': Notification.objects.filter(is_read=False).count(),
     }
     return render(request, 'contracts.html', ctx)
 
@@ -326,6 +324,7 @@ def payments(request):
         'payments': qs, 'status_filter': status_filter, 'q': q,
         'total_paid': total_paid, 'total_pending': total_pending, 'total_overdue': total_overdue,
         'pending_count': pending_count, 'overdue_count': overdue_count, 'payment_count': payment_count,
+        'unread_notifications': Notification.objects.filter(is_read=False).count(),
     }
     return render(request, 'payments.html', ctx)
 
@@ -452,6 +451,7 @@ def repairs(request):
     ctx = {
         'repairs': qs, 'q': q,
         'checklist_groups': REPAIR_CHECKLIST,
+        'unread_notifications': Notification.objects.filter(is_read=False).count(),
     }
     return render(request, 'repairs.html', ctx)
 
