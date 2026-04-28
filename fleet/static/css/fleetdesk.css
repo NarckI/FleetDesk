@@ -265,4 +265,5 @@ td {
 .badge-status.available     { background-color: rgb(209, 245, 224); color: rgb(21, 128, 61); }
 .badge-status.maintenance   { background-color: rgb(247, 255, 183); color: rgb(142, 136, 21);}
 .badge-status.terminated    { background-color: rgb(254, 226, 226); color: rgb(185, 28, 28); }
-.badge-status.expired       { background-color: rgb(200, 200, 200); color: rgb(0, 0, 0); }
+.badge-status.expired       { background-color: rgb(200, 200, 200); color: rgb(0, 0, 0);     }
+.badge-status.pending       { background-color: rgb(247, 255, 183); color: rgb(142, 136, 21);} 
