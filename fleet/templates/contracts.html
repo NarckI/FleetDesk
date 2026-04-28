@@ -23,6 +23,7 @@
                     {% if q %}<a href="{% url 'contracts' %}" class="btn btn-outline-secondary">Clear</a>{% endif %}
                 </div>
             </form>
+        </div>
 
             <!--Table-->
             <table class="table table-hover mt-3">
@@ -54,11 +55,11 @@
                                 <button class="btn-action primary" title="Edit" onclick="openEditContract({{ c.pk }})">
                                     <img src="..\static\image\pencil.svg" alt="Edit">
                                 </button>
-                                {% endif %}
                                 <button class="btn-action danger" title="Terminate"
                                         onclick="confirmTerminateContract({{ c.pk }}, 'Contract #{{ c.pk }}')">
                                     <img src="..\static\image\trash.svg" alt="Delete">
                                 </button>
+                                {% endif %}
                             </div>
                         </td>
                     </tr>
@@ -70,7 +71,6 @@
                 </tbody>
             </table>
         </div>
-    </div>
 
     <!--- Add contract modal-->
     <div class="modal fade" id="addContractModal" tabindex="-1" aria-hidden="true">

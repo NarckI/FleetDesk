@@ -295,10 +295,6 @@ def contract_delete(request, pk):
     return redirect('contracts')
 
 
-def repairs(request):
-    if request.user.is_authenticated:
-        return render(request, 'repairs.html', {})
-
 def payments(request):
     if request.user.is_authenticated:
         return render(request, 'payments.html', {})

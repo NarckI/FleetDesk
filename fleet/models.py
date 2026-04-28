@@ -111,4 +111,30 @@ class Payment(models.Model):
 
 #Repair
 class Repair(models.Model):
-    pass
+    STATUS_CHOICES = [('pending','Pending'),('in-progress','In Progress'),('completed','Completed')]
+    vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, related_name='repairs')
+    driver = models.ForeignKey(Driver, on_delete=models.SET_NULL, null=True, blank=True, related_name='repairs')
+    date_finished = models.DateField(null=True, blank=True)
+    repair_shop_name = models.CharField(max_length=200, blank=True)
+    total_cost = models.DecimalField(max_digits=10, decimal_places=2, default=0)
+    repair_details = models.TextField(blank=True)
+    checklist = models.JSONField(default=list, blank=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Repair #{self.pk} — {self.vehicle.plate_number}"
+
+
+class RepairReceipt(models.Model):
+    repair = models.ForeignKey(Repair, on_delete=models.CASCADE, related_name='receipts')
+    file = models.FileField(upload_to='repair_receipts/')
+    file_name = models.CharField(max_length=255)
+    uploaded_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.file_name
