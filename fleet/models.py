@@ -138,3 +138,27 @@ class RepairReceipt(models.Model):
 
     def __str__(self):
         return self.file_name
+
+#notficaiton
+class Notification(models.Model):
+    TYPE_CHOICES = [
+        ('payment_overdue','Payment Overdue'),
+        ('license_expiry','License Expiry'),
+        ('or_expiry','OR Expiry'),
+        ('cr_expiry','CR Expiry'),
+        ('cpc_expiry','CPC Expiry'),
+    ]
+    SEVERITY_CHOICES = [('low','Low'),('medium','Medium'),('high','High')]
+    notification_type = models.CharField(max_length=30, choices=TYPE_CHOICES)
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    severity = models.CharField(max_length=10, choices=SEVERITY_CHOICES, default='medium')
+    is_read = models.BooleanField(default=False)
+    related_driver = models.ForeignKey(Driver, on_delete=models.CASCADE, null=True, blank=True)
+    related_vehicle = models.ForeignKey(Vehicle, on_delete=models.CASCADE, null=True, blank=True)
+    related_contract = models.ForeignKey(Contract, on_delete=models.CASCADE, null=True, blank=True)
+    related_payment = models.ForeignKey(Payment, on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']

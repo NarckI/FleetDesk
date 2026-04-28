@@ -27,3 +27,54 @@ def generate_daily_payments(today=None):
             contract=contract, due_date=today,
             defaults={'amount': contract.daily_rate, 'balance': contract.daily_rate, 'status': 'pending'}
         )
+
+def generate_notifications(today=None):
+    today = today or date.today()
+
+    for driver in Driver.objects.filter(status='active'):
+        days_left = (driver.license_expiry - today).days
+        if days_left == 21 or 0 <= days_left <= 14:
+            sev = 'high' if 0 <= days_left <= 7 else 'medium'
+            Notification.objects.get_or_create(
+                notification_type='license_expiry', related_driver=driver,
+                created_at__date=today,
+                defaults={
+                    'title': 'Driver License Expiring Soon',
+                    'message': f"{driver.full_name}'s license expires in {days_left} days ({driver.license_expiry}).",
+                    'severity': sev, 'related_driver': driver,
+                }
+            )
+
+    for vehicle in Vehicle.objects.all():
+        for field, ntype, label in [
+            ('or_expiry','or_expiry','OR'),
+            ('cr_expiry','cr_expiry','CR'),
+            ('cpc_expiry','cpc_expiry','CPC'),
+        ]:
+            expiry = getattr(vehicle, field)
+            if not expiry: continue
+            days_left = (expiry - today).days
+            if days_left == 14 or 0 <= days_left <= 7:
+                sev = 'high' if 0 <= days_left <= 7 else 'medium'
+                Notification.objects.get_or_create(
+                    notification_type=ntype, related_vehicle=vehicle,
+                    created_at__date=today,
+                    defaults={
+                        'title': f'Vehicle {label} Expiring Soon',
+                        'message': f"{vehicle.plate_number} {label} expires in {days_left} days ({expiry}).",
+                        'severity': sev, 'related_vehicle': vehicle,
+                    }
+                )
+
+    for payment in Payment.objects.filter(status='overdue').select_related('contract','contract__driver'):
+        days_over = (today - payment.due_date).days
+        Notification.objects.get_or_create(
+            notification_type='payment_overdue', related_payment=payment,
+            created_at__date=today,
+            defaults={
+                'title': 'Overdue Payment',
+                'message': f"Payment of ₱{payment.amount:,.2f} is {days_over} days overdue (Due: {payment.due_date}).",
+                'severity': 'high', 'related_payment': payment,
+                'related_contract': payment.contract,
+            }
+        )

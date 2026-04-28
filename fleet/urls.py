@@ -43,5 +43,8 @@ urlpatterns = [
     path('repairs/<int:pk>/delete/', views.repair_delete, name='repair_delete'),
     path('repairs/<int:pk>/detail/', views.repair_detail_json, name='repair_detail_json'),
 
+    # Notifications
     path('notifications/', views.notifications, name='notifications'),
+    path('notifications/<int:pk>/read/', views.notification_mark_read, name='notification_mark_read'),
+    path('notifications/read-all/', views.notification_mark_all_read, name='notification_mark_all_read'),
 ]

@@ -7,8 +7,8 @@ from django.contrib import messages
 from django.db.models import Q, Sum, Case, When, Value, IntegerField
 from decimal import Decimal
 from datetime import date
-from .models import Driver, Vehicle, Contract, Repair, Payment
-from .services import auto_expire_contracts, run_daily_tasks, mark_overdue_payments, generate_daily_payments
+from .models import Driver, Vehicle, Contract, Repair, Payment, Notification
+from .services import auto_expire_contracts, run_daily_tasks, mark_overdue_payments, generate_daily_payments, generate_notifications
 
 
 # Create your views here.
@@ -31,10 +31,6 @@ def login_user(request):
 def logout_user(request):
     logout(request)
     return redirect('login')
-
-def payments(request):
-    if request.user.is_authenticated:
-        return render(request, 'payments.html', {})
 
 def notifications(request):
     if request.user.is_authenticated:
@@ -541,6 +537,48 @@ def repair_detail_json(request, pk):
         'receipts': receipts,
     }
     return JsonResponse(data)
+
+
+# ── Notifications ─────────────────────────────────────────────────────────────
+
+@login_required
+def notifications(request):
+    from .services import generate_notifications
+    generate_notifications()
+    notif_type = request.GET.get('type','')
+    qs = Notification.objects.all()
+    if notif_type == 'payment':
+        qs = qs.filter(notification_type='payment_overdue')
+    elif notif_type == 'expiry':
+        qs = qs.filter(notification_type__in=['license_expiry','or_expiry','cr_expiry','cpc_expiry'])
+    payment_count = Notification.objects.filter(notification_type='payment_overdue').count()
+    expiry_count = Notification.objects.filter(notification_type__in=['license_expiry','or_expiry','cr_expiry','cpc_expiry']).count()
+    ctx = {
+        'notifications': qs,
+        'notif_type': notif_type,
+        'payment_count': payment_count,
+        'expiry_count': expiry_count,
+        'total_count': payment_count + expiry_count,
+        'unread_notifications': Notification.objects.filter(is_read=False).count(),
+    }
+    return render(request, 'core/notifications.html', ctx)
+
+
+@login_required
+@require_POST
+def notification_mark_read(request, pk):
+    n = get_object_or_404(Notification, pk=pk)
+    n.is_read = True
+    n.save()
+    return redirect('notifications')
+
+
+@login_required
+@require_POST
+def notification_mark_all_read(request):
+    Notification.objects.filter(is_read=False).update(is_read=True)
+    messages.success(request, 'All notifications marked as read.')
+    return redirect('notifications')
 
 
 
