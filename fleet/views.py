@@ -8,7 +8,7 @@ from django.db.models import Q, Sum, Case, When, Value, IntegerField
 from decimal import Decimal
 from datetime import date
 from .models import Driver, Vehicle, Contract, Repair, Payment, Notification
-from .services import auto_expire_contracts, run_daily_tasks, mark_overdue_payments, generate_daily_payments, generate_notifications
+from .services import auto_expire_contracts, run_daily_tasks, mark_overdue_payments, generate_daily_payments
 
 
 # Create your views here.
@@ -248,12 +248,14 @@ def contracts(request):
 @require_POST
 def contract_add(request):
     try:
+        start_date = date.fromisoformat(request.POST['start_date'])
+        end_date = date.fromisoformat(request.POST['end_date'])
         contract = Contract.objects.create(
             driver_id=request.POST['driver'],
             vehicle_id=request.POST['vehicle'],
             daily_rate=Decimal(request.POST['daily_rate']),
-            start_date=request.POST['start_date'],
-            end_date=request.POST['end_date'],
+            start_date=start_date,
+            end_date=end_date,
             status=request.POST.get('status','active'),
         )
         # Create today's payment if contract is active today
@@ -277,11 +279,11 @@ def contract_edit(request, pk):
         messages.error(request, 'Terminated contracts cannot be edited.')
         return redirect('contracts')
     try:
+        contract.start_date = date.fromisoformat(request.POST['start_date'])
+        contract.end_date = date.fromisoformat(request.POST['end_date'])
         contract.driver_id = request.POST['driver']
         contract.vehicle_id = request.POST['vehicle']
         contract.daily_rate = Decimal(request.POST['daily_rate'])
-        contract.start_date = request.POST['start_date']
-        contract.end_date = request.POST['end_date']
         contract.status = request.POST.get('status', contract.status)
         contract.save()
         messages.success(request, 'Contract updated.')
