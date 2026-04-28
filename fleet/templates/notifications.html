@@ -14,5 +14,39 @@
             </button>
         </form>
     </div>
+    <!---SUmmary-->
+    <div>
+        <div class="text-muted small">Payment Alerts</div>
+        <div class="fs-4 fw-bold">{{ payment_count }}</div>
+        <div class="text-muted small">Overdue payments</div>
+    </div>
+    <div>
+        <div class="text-muted small">Expiration Alerts</div>
+        <div class="fs-4 fw-bold">{{ expiry_count }}</div>
+        <div class="text-muted small">Documents expiring soon</div>
+    </div>
+    <div>
+        <div class="text-muted small">Total Alerts</div>
+        <div class="fs-4 fw-bold">{{ total_count }}</div>
+        <div class="text-muted small">Active notifications</div>
+    </div>
+
+    <!-- Filter tabs -->
+    <div class="mb-3 d-flex gap-2">
+        <a href="{% url 'notifications' %}"
+           class="btn btn-sm {% if not notif_type %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            All Alerts ({{ total_count }})
+        </a>
+        <a href="?type=payment"
+           class="btn btn-sm {% if notif_type == 'payment' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            Payment Alerts ({{ payment_count }})
+        </a>
+        <a href="?type=expiry"
+           class="btn btn-sm {% if notif_type == 'expiry' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
+            Expiration Alerts ({{ expiry_count }})
+        </a>
+    </div>
+
+    
 </main>
 {% endblock %}
