@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% block title %}Dashboard — Fleet Desk{% endblock %}
 
 {% block content %}
 <main class="main-content">
@@ -15,8 +16,8 @@
                     <div class="d-md-flex justify-content-between align-items-center">
                         <div>
                             <small class="text-muted">Total Drivers</small>
-                            <h4 class="mb-0">0</h4>
-                            <small class="text-muted">0 active</small>
+                            <h4 class="mb-0">{{ total_drivers }}</h4>
+                            <small class="text-muted">{{ active_drivers }} active</small>
                         </div>
                         <span class="main-icons">
                             <img src="..\static\image\people.svg" id="driver-icon" alt="Drivers">
@@ -29,8 +30,8 @@
                     <div class="d-md-flex justify-content-between align-items-center">
                         <div>
                             <small class="text-muted d-block mb-1">Total Vehicles</small>
-                            <h4 class="mb-0">0</h4>
-                            <small class="text-muted">0 available</small>
+                            <h4 class="mb-0">{{ total_vehicles }}</h4>
+                            <small class="text-muted">{{ available_vehicles }} available</small>
                         </div>
                         <span class="main-icons">
                             <img src="..\static\image\car-front.svg" id="vehicle-icon" alt="Vehicle">
@@ -43,8 +44,8 @@
                     <div class="d-md-flex justify-content-between align-items-center">
                         <div>
                             <small class="text-muted d-block mb-1">Active Contracts</small>
-                            <h4 class="mb-0">0</h4>
-                            <small class="text-muted">0 total</small>
+                            <h4 class="mb-0">{{ active_contracts }}</h4>
+                            <small class="text-muted">{{ active_contracts }} total</small>
                         </div>
                         <span class="main-icons">
                             <img src="..\static\image\file-earmark-text.svg" id="file-icon" alt="File">
@@ -89,40 +90,45 @@
         </div>
     </div>
     <div class="container-md my-4">
-    <div class="row">
-        <div class="col-12 col-md-6 mb-3">
-            <div class="p-4 text-dark box">
-                <small class="h1 fs-6">Recent Contracts</small>
-                <div class="d-flex justify-content-between align-items-start mt-4">
-                    <div>
-                        <p class="mb-0 fw-medium">Example</p>
-                        <small class="mb-0 text-muted">Example</small>
+        <div class="row">
+            <div class="col-12 col-md-6 mb-3">
+                <div class="p-4 text-dark box">
+                    <small class="h1 fs-6">Recent Contracts</small>
+                    {% if recent_contracts %}
+                    {% for c in recent_contracts %}
+                    <div class="d-flex justify-content-between align-items-start mt-4">
+                        <div>
+                            <p class="mb-0 fw-medium">{{ c.driver.full_name }}</p>
+                            <small class="mb-0 text-muted">{{ c.vehicle.plate_number }}</small>
+                        </div>
+                        <div class="text-end">
+                            <p class="mb-0">₱{{ c.daily_rate }}/day</p>
+                            <span class="badge-status {{ c.status }}">{{ c.status }}</span>
+                        </div>
                     </div>
-                    <div class="text-end">
-                        <p class="mb-0">Example</p>
-                        <span class="badge-status active">active</span>
-                    </div>
+                    {% endfor %}
+                    {% else %}
+                    <div>No contracts yet.</div>
+                    {% endif %}
                 </div>
-                <hr>
             </div>
-        </div>
-        <div class="col-12 col-md-6 mb-3">
-            <div class="p-4 text-dark box">
-                <small class="h1 fs-6">Recent Payments</small>
-                <div class="d-flex justify-content-between align-items-start mt-4">
-                    <div>
-                        <p class="mb-0 fw-medium">Example</p>
-                        <small class="mb-0 text-muted">Example</small>
+            <div class="col-12 col-md-6 mb-3">
+                <div class="p-4 text-dark box">
+                    <small class="h1 fs-6">Recent Payments</small>
+                    <div class="d-flex justify-content-between align-items-start mt-4">
+                        <div>
+                            <p class="mb-0 fw-medium">Example</p>
+                            <small class="mb-0 text-muted">Example</small>
+                        </div>
+                        <div class="text-end">
+                            <p class="mb-0">Example</p>
+                            <span class="badge-status paid">paid</span>
+                        </div>
                     </div>
-                    <div class="text-end">
-                        <p class="mb-0">Example</p>
-                        <span class="badge-status paid">paid</span>
-                    </div>
+                    <hr>
                 </div>
-                <hr>
             </div>
         </div>
     </div>
-</div>
 </main>
 {% endblock %}

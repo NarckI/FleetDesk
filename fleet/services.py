@@ -7,3 +7,7 @@ def auto_expire_contracts(today=None):
     for c in Contract.objects.filter(status='active', end_date__lt=today):
         c.status = 'expired'
         c.save()
+
+def run_daily_tasks():
+    today = date.today()
+    auto_expire_contracts(today)
