@@ -54,4 +54,4 @@ class Vehicle(models.Model):
         ordering = ['plate_number']
 
     def __str__(self):
-        return f"{self.plate_number} - {self.brand} {self.model}"
+        return f"{self.vehicle} - {self.status}"

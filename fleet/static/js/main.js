@@ -48,9 +48,11 @@ function openEditVehicle(pk) {
   });
 }
 
-function confirmDeleteVehicle(pk, name) {
+function confirmDeleteVehicle(pk, name, brand, model) {
   document.getElementById('deleteVehicleForm').action = '/vehicles/' + pk + '/delete/';
   document.getElementById('deleteVehicleName').textContent = name;
+  document.getElementById('deleteVehicleBrand').textContent = brand;
+  document.getElementById('deleteVehicleModel').textContent = model;
   bootstrap.Modal.getOrCreateInstance(document.getElementById('deleteVehicleModal')).show();
 }
 
@@ -64,22 +66,24 @@ function confirmRepair(pk, name) {
 const searchInput = document.querySelector('input[name="q"]');
 const rows = document.querySelectorAll('tbody tr');
 
-searchInput.addEventListener('input', function() {
-    const query = this.value.toLowerCase();
+if (searchInput && rows.length > 0) {
+    searchInput.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
 
-    rows.forEach(row => {
-        const cells = row.querySelectorAll('td');
-        const first = cells[0]?.textContent.toLowerCase();
-        const second = cells[1]?.textContent.toLowerCase();
-        const third = cells[2]?.textContent.toLowerCase();
-        const fourth = cells[3]?.textContent.toLowerCase();
+        rows.forEach(row => {
+            const cells = row.querySelectorAll('td');
+            const first = cells[0]?.textContent.toLowerCase();
+            const second = cells[1]?.textContent.toLowerCase();
+            const third = cells[2]?.textContent.toLowerCase();
+            const fourth = cells[3]?.textContent.toLowerCase();
 
-        const match =
-            first.includes(query) ||
-            second.includes(query) ||
-            third.includes(query) ||
-            fourth.includes(query);
+            const match =
+                first.includes(query) ||
+                second.includes(query) ||
+                third.includes(query) ||
+                fourth.includes(query);
 
-        row.style.display = query === '' || match ? '' : 'none';
+            row.style.display = query === '' || match ? '' : 'none';
+        });
     });
-});
+}

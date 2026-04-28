@@ -52,11 +52,11 @@
                         <td class="text-end">
                             <div class="d-flex gap-1 justify-content-end">
                                 <button class="btn-action" title="Edit" onclick="openEditDriver({{ d.pk }})">
-                                    <img src="..\static\image\pencil.svg" alt="Edit">
+                                    <img src="{% static 'image/pencil.svg' %}" alt="Edit">
                                 </button>
                                 <button class="btn-action" title="Delete"
                                         onclick="confirmDeleteDriver({{ d.pk }}, '{{ d.full_name|escapejs }}')">
-                                    <img src="..\static\image\trash.svg" alt="Delete">
+                                    <img src="{% static 'image/trash.svg' %}" alt="Delete">
                                 </button>
                             </div>
                         </td>

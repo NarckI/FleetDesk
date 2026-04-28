@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load static %}
 {% block fullcontent %}
 <style>
     body {
@@ -16,7 +17,7 @@
         
         <div class="d-flex flex-column align-items-center">
             <span class="lock-icon">
-                <img src="..\static\image\lock.svg" alt="Lock">
+                <img src="{% static 'image/lock.svg' %}" alt="Lock">
             </span>
             <h2 class="h2 fw-bold">Fleet Desk</h2>
             <p class="fw-normal mb-4">Sign in to access your fleet management system</p>
@@ -28,8 +29,10 @@
         <input type="password" class="form-control mb-4" name="password" placeholder="Enter your password" required>
         {% csrf_token %}
         {% for message in messages %}
-            <div class="error-message mb-4 h6">{{ message }}</div>
-        {% endfor %}   
+            {% if 'login' in message.tags %}
+                <div class="error-message mb-4 h6">{{ message }}</div>
+            {% endif %}
+        {% endfor %}
         <button class="btn btn-primary mb-4" type="submit">Sign in</button>
     </form>
 </div>

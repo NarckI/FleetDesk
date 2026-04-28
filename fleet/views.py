@@ -26,7 +26,7 @@ def login_user(request):
             login(request, user)
             return redirect('home')
         else:
-            messages.error(request, 'Username or password is incorrect')
+            messages.error(request, 'Username or password is incorrect', extra_tags='login')
     return render(request,'login.html', {})
 
 def logout_user(request):

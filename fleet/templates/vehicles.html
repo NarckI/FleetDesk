@@ -52,17 +52,17 @@
                         <td>{{ v.last_maintenance|default:"—" }}</td>
                         <td><span class="badge-status {{ v.status }}">{{ v.get_status_display }}</span></td>
                         <td class="text-end">
-                            <div class="d-flex gap-1 justify-content-end"">
+                            <div class="d-flex gap-1 justify-content-end">
                                 <button class="btn-action primary" title="Edit" onclick="openEditVehicle({{ v.pk }})">
-                                    <img src="..\static\image\pencil.svg" alt="Edit">
+                                    <img src="{% static 'image/pencil.svg' %}" alt="Edit">
                                 </button>
                                 <button class="btn-action danger" title="Delete"
-                                        onclick="confirmDeleteVehicle({{ v.pk }}, '{{ v.plate_number }}')">
-                                    <img src="..\static\image\trash.svg" alt="Delete">
+                                        onclick="confirmDeleteVehicle({{ v.pk }}, '{{ v.plate_number }}', '{{ v.brand }}', '{{ v.model }}')">
+                                    <img src="{% static 'image/trash.svg' %}" alt="Delete">
                                 </button>
                                 <button class="btn-action warning" title="Create Repair Log"
                                         onclick="confirmRepair({{ v.pk }}, '{{ v.plate_number }}')">
-                                    <img src="..\static\image\tools.svg" alt="Repair">
+                                    <img src="{% static 'image/tools.svg' %}" alt="Repair">
                                 </button>
                             </div>
                         </td>
@@ -239,11 +239,11 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h5 class="modal-title fw-bold text-danger">DeleteVehicle</h5>
+                    <h5 class="modal-title fw-bold text-danger">Delete Vehicle</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
-                    <p class="mb-0">Are you sure you want to delete vehicle <strong id="deleteVehicleName"></strong>?</p>
+                    <p class="mb-0">Are you sure you want to delete vehicle <strong id="deleteVehicleBrand"></strong> <strong id="deleteVehicleModel"></strong> (<strong id="deleteVehicleName"></strong>)?</p>
                 </div>
                 <div class="modal-footer">
                     <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
