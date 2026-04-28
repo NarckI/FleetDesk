@@ -54,7 +54,7 @@ class Vehicle(models.Model):
         ordering = ['plate_number']
 
     def __str__(self):
-        return f"{self.vehicle} - {self.status}"
+        return f"{self.plate_number} - {self.brand} {self.model}"
 
 #Contracts
 class Contract(models.Model):
@@ -84,3 +84,7 @@ class Contract(models.Model):
             if not still_active:
                 self.vehicle.status = 'available'
                 self.vehicle.save(update_fields=['status'])
+
+#Repair
+class Repair(models.Model):
+    pass

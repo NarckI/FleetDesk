@@ -5,8 +5,9 @@ from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.contrib import messages
 from django.db.models import Q
+from decimal import Decimal
 from datetime import date
-from .models import Driver, Vehicle, Contract
+from .models import Driver, Vehicle, Contract, Repair
 from .services import auto_expire_contracts
 
 # Create your views here.

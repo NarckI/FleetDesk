@@ -134,9 +134,13 @@ function openEditContract(pk) {
     fetchJSON('/contracts/drivers/'),
     fetchJSON('/contracts/vehicles/'),
   ]).then(function (results) {
+    console.log('Contract data loaded:', results);
     var d = results[0];
     var driverSel = document.getElementById('editContractDriver');
     var vehicleSel = document.getElementById('editContractVehicle');
+
+    console.log('Driver select elem:', driverSel, 'Vehicle select elem:', vehicleSel);
+    console.log('Contract data:', d);
 
     // Populate drivers (include current driver even if has active contract)
     driverSel.innerHTML = '<option value="' + d.driver_id + '">' + d.driver_name + '</option>';
@@ -160,9 +164,11 @@ function openEditContract(pk) {
     document.getElementById('editContractEndDate').value = d.end_date;
     document.getElementById('editContractStatus').value = d.status;
 
+    console.log('Form populated, showing modal');
     bootstrap.Modal.getOrCreateInstance(document.getElementById('editContractModal')).show();
   }).catch(function (err) {
     console.error('Failed to load contract edit data:', err);
+    alert('Error loading contract edit data. Check browser console.');
     bootstrap.Modal.getOrCreateInstance(document.getElementById('editContractModal')).show();
   });
 }
