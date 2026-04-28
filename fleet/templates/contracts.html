@@ -3,114 +3,124 @@
 
 {% block content %}
 <main class="main-content">
-    <div>
-        <h1>Contract Management</h1>
-        <p>Manage driver and vehicle contracts</p>
-    </div>
-    <button class="btn btn-primary" onclick="openAddContract()">
-        <i class="bi bi-plus-lg me-1"></i>Add Contract
-    </button>
-    <!--Search-->
-    <div class="table-card mb-3 p-3">
-        <form method="get" class="d-flex gap-2">
-            <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Search vehicles…"
-                   style="max-width:400px;">
-            <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
-            {% if q %}<a href="{% url 'contracts' %}" class="btn btn-outline-secondary">Clear</a>{% endif %}
-        </form>
-    </div>
+    <div class="container-md my-4">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h3 class="h3">Contract Management</h3>
+                <p class="text-muted mb-0">Manage driver and vehicle contracts</p>
+            </div>
+            <button class="btn btn-dark" onclick="openAddContract()">+ Add Contract</button>
+        </div>
 
-    <!--Table-->
-    <table>
-        <thead>
-        <tr>
-            <th>#</th>
-            <th>Driver</th>
-            <th>Vehicle</th>
-            <th>Start Date</th>
-            <th>End Date</th>
-            <th>Daily Rate</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-        </thead>
-        <tbody>
-        {% for c in contracts %}
-        <tr>
-            <td class="text-muted">#{{ c.pk }}</td>
-            <td class="fw-semibold">{{ c.driver.full_name }}</td>
-            <td>{{ c.vehicle.plate_number }} — {{ c.vehicle.brand }} {{ c.vehicle.model }}</td>
-            <td>{{ c.start_date }}</td>
-            <td>{{ c.end_date }}</td>
-            <td>₱{{ c.daily_rate|floatformat:0 }}</td>
-            <td><span class="status-badge badge-{{ c.status }}">{{ c.status }}</span></td>
-            <td>
-                <div class="d-flex gap-1">
-                    {% if c.status != 'terminated' %}
-                    <button class="btn-action primary" title="Edit" onclick="openEditContract({{ c.pk }})">
-                        <i class="bi bi-pencil"></i>
+        <!--Search-->
+        <div class="box mt-4 p-3">
+            <form method="get" class="d-flex gap-2">
+                <div class="input-group">
+                    <button class="input-group-text bg-white border-0" type="submit">
+                        <img src="..\static\image\search.svg" alt="Search">
                     </button>
-                    <button class="btn-action danger" title="Terminate"
-                            onclick="confirmTerminateContract({{ c.pk }}, 'Contract #{{ c.pk }}')">
-                        <i class="bi bi-trash"></i>
-                    </button>
-                    {% endif %}
+                    <input type="search" name="q" value="{{ q }}" class="form-control border-0" placeholder="Search vehicles…">
+                    {% if q %}<a href="{% url 'contracts' %}" class="btn btn-outline-secondary">Clear</a>{% endif %}
                 </div>
-            </td>
-        </tr>
-        {% empty %}
-        <tr>
-            <td colspan="8" class="text-center text-muted py-4">No contracts found.</td>
-        </tr>
-        {% endfor %}
-        </tbody>
-    </table>
+            </form>
+
+            <!--Table-->
+            <table class="table table-hover mt-3">
+                <thead>
+                <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Driver</th>
+                    <th scope="col">Vehicle</th>
+                    <th scope="col">Start Date</th>
+                    <th scope="col">End Date</th>
+                    <th scope="col">Daily Rate</th>
+                    <th scope="col">Status</th>
+                    <th scope="col" class="text-end">Actions</th>
+                </tr>
+                </thead>
+                <tbody>
+                    {% for c in contracts %}
+                    <tr>
+                        <td class="fw-semibold">#{{ c.pk }}</td>
+                        <td class="fw-semibold">{{ c.driver.full_name }}</td>
+                        <td>{{ c.vehicle.plate_number }} — {{ c.vehicle.brand }} {{ c.vehicle.model }}</td>
+                        <td>{{ c.start_date }}</td>
+                        <td>{{ c.end_date }}</td>
+                        <td>₱{{ c.daily_rate|floatformat:0 }}</td>
+                        <td><span class="badge-status {{ c.status }}">{{ c.status }}</span></td>
+                        <td>
+                            <div class="d-flex gap-1 justify-content-end">
+                                {% if c.status != 'terminated' %}
+                                <button class="btn-action primary" title="Edit" onclick="openEditContract({{ c.pk }})">
+                                    <img src="..\static\image\pencil.svg" alt="Edit">
+                                </button>
+                                {% endif %}
+                                <button class="btn-action danger" title="Terminate"
+                                        onclick="confirmTerminateContract({{ c.pk }}, 'Contract #{{ c.pk }}')">
+                                    <img src="..\static\image\trash.svg" alt="Delete">
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="8" class="text-center text-muted py-4">No contracts found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
 
     <!--- Add contract modal-->
-    <div class="modal fade" id="addContractModal" tabindex="-1">
-        <div class="modal-dialog">
+    <div class="modal fade" id="addContractModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
-                <div>
+                <div class="modal-header">
                     <h5 class="modal-title fw-bold">Add New Contract</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form action="{% url 'contract_add' %}" method="post">
                     {% csrf_token %}
-                    <div>
-                        <label>Driver<span class="text-danger">*</span></label>
-                        <select name="driver" id="addContractDriver" required>
-                            <option value="">Select Driver</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label>Vehicle<span class="text-danger">*</span></label>
-                        <select name="vehicle" id="addContractVehicle" required>
-                            <option value="">Select Vehicle</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label>Daily Rate (₱)<span class="text-danger">*</span></label>
-                        <input type="number" name="daily_rate" class="form-control" required>
-                    </div>
-                    <div>
-                        <label>Status</label>
-                        <select name="status">
-                            <option value="active">Active</option>
-                            <option value="expired">Expired</option>
-                            <option value="terminated">Terminated</option>
-                        </select>
-                    </div>
-                    <div>
-                        <label>Start Date<span class="text-danger">*</span></label>
-                        <input type="date" name="start_date" class="form-control" required>
-                    </div>
-                    <div>
-                        <label>End Date<span class="text-danger">*</span></label>
-                        <input type="date" name="end_date" class="form-control" required>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Add Contract</button>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label mb-0">Driver<span class="text-danger">*</span></label>
+                                <select name="driver" id="addContractDriver" class="form-select" required>
+                                    <option value="">Select Driver</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Vehicle<span class="text-danger">*</span></label>
+                                <select name="vehicle" id="addContractVehicle" class="form-select" required>
+                                    <option value="">Select Vehicle</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Daily Rate (₱)<span class="text-danger">*</span></label>
+                                <input type="number" name="daily_rate" class="form-control" required>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Status</label>
+                                <select name="status" class="form-select">
+                                    <option value="active">Active</option>
+                                    <option value="expired">Expired</option>
+                                    <option value="terminated">Terminated</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label>Start Date<span class="text-danger">*</span></label>
+                                <input type="date" name="start_date" class="form-control" required>
+                            </div>
+                            <div class="col-md-6 mb-2">
+                                <label>End Date<span class="text-danger">*</span></label>
+                                <input type="date" name="end_date" class="form-control" required>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-primary">Add Contract</button>
+                            </div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -118,48 +128,48 @@
     </div>
     <!-- Edit Contract Modal -->
     <div class="modal fade" id="editContractModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
             <div class="modal-content">
-                <div>
+                <div class="modal-header">
                     <h5 class="modal-title fw-bold">Edit Contract</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form method="post" id="editContractForm">
                     {% csrf_token %}
-                    <div>
-                        <div>
-                            <label>Driver<span class="text-danger">*</span></label>
-                            <select name="driver" id="editContractDriver" required>
-                                <option value="">Select Driver</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>Vehicle<span class="text-danger">*</span></label>
-                            <select name="vehicle" id="editContractVehicle" required>
-                                <option value="">Select Vehicle</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>Daily Rate (₱)<span class="text-danger">*</span></label>
-                            <input type="number" name="daily_rate" class="form-control" id="editContractDailyRate"
-                                   required>
-                        </div>
-                        <div>
-                            <label>Status</label>
-                            <select name="status" id="editContractStatus">
-                                <option value="active">Active</option>
-                                <option value="expired">Expired</option>
-                                <option value="terminated">Terminated</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label>Start Date<span class="text-danger">*</span></label>
-                            <input type="date" name="start_date" class="form-control" id="editContractStartDate"
-                                   required>
-                        </div>
-                        <div>
-                            <label>End Date<span class="text-danger">*</span></label>
-                            <input type="date" name="end_date" class="form-control" id="editContractEndDate" required>
+                    <div class="modal-body">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label">Driver<span class="text-danger">*</span></label>
+                                <select name="driver" id="editContractDriver" class="form-select" required>
+                                    <option value="">Select Driver</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Vehicle<span class="text-danger">*</span></label>
+                                <select name="vehicle" id="editContractVehicle" class="form-select" required>
+                                    <option value="">Select Vehicle</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Daily Rate (₱)<span class="text-danger">*</span></label>
+                                <input type="number" name="daily_rate" class="form-control" id="editContractDailyRate"required>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Status</label>
+                                <select name="status" id="editContractStatus" class="form-select">
+                                    <option value="active">Active</option>
+                                    <option value="expired">Expired</option>
+                                    <option value="terminated">Terminated</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Start Date<span class="text-danger">*</span></label>
+                                <input type="date" name="start_date" class="form-control" id="editContractStartDate"required>
+                            </div>
+                            <div class="col-md-6 mb-4">
+                                <label class="form-label">End Date<span class="text-danger">*</span></label>
+                                <input type="date" name="end_date" class="form-control" id="editContractEndDate" required>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel

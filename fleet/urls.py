@@ -36,6 +36,12 @@ urlpatterns = [
     path('payments/<int:pk>/partial/', views.payment_partial, name='payment_partial'),
     path('payments/<int:pk>/delete/', views.payment_delete, name='payment_delete'),
 
+    # Repairs
     path('repairs/', views.repairs, name='repairs'),
+    path('repairs/<int:pk>/save/', views.repair_save_details, name='repair_save_details'),
+    path('repairs/<int:pk>/complete/', views.repair_mark_completed, name='repair_mark_completed'),
+    path('repairs/<int:pk>/delete/', views.repair_delete, name='repair_delete'),
+    path('repairs/<int:pk>/detail/', views.repair_detail_json, name='repair_detail_json'),
+
     path('notifications/', views.notifications, name='notifications'),
 ]

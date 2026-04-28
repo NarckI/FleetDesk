@@ -382,6 +382,164 @@ def payment_delete(request, pk):
         messages.error(request, f'Cannot delete payment: {e}')
     return redirect('payments')
 
+# ── Repairs ───────────────────────────────────────────────────────────────────
+
+REPAIR_CHECKLIST = [
+    ("ENGINE AND POWERTRAIN", [
+        "Engine diagnostics and troubleshooting","Spark plug replacement","Ignition coil replacement",
+        "Fuel injector cleaning or replacement","Fuel pump repair","Air filter replacement",
+        "Timing belt or timing chain replacement","Serpentine belt replacement",
+        "Radiator repair or replacement","Water pump replacement","Thermostat replacement",
+        "Engine mount replacement","Head gasket repair","Engine overhaul or rebuild",
+        "Transmission fluid change","Transmission repair or rebuild","Clutch replacement for manual",
+        "Differential repair","Driveshaft and CV joint repair",
+    ]),
+    ("OIL AND FLUID SERVICES", [
+        "Engine oil and oil filter change","Transmission fluid change","Brake fluid flush",
+        "Power steering fluid replacement","Coolant flush and refill","Differential fluid change",
+        "Windshield washer fluid refill",
+    ]),
+    ("BRAKE SYSTEM", [
+        "Brake pad replacement","Brake shoe replacement","Brake disc or rotor resurfacing or replacement",
+        "Brake caliper repair or replacement","Brake master cylinder repair","Brake fluid bleeding",
+        "ABS diagnostics and repair","Brake line repair",
+    ]),
+    ("SUSPENSION AND STEERING", [
+        "Shock absorber replacement","Strut replacement","Coil spring replacement",
+        "Control arm repair","Ball joint replacement","Tie rod end replacement",
+        "Steering rack repair or replacement","Power steering pump repair",
+        "Wheel alignment","Wheel balancing",
+    ]),
+    ("AIR CONDITIONING AND HVAC", [
+        "AC system diagnostics","Refrigerant recharge","Compressor repair or replacement",
+        "Condenser repair or replacement","Evaporator repair","Blower motor replacement",
+        "Cabin air filter replacement","AC leak detection and sealing",
+    ]),
+    ("ELECTRICAL SYSTEM", [
+        "Battery replacement","Alternator repair or replacement","Starter motor repair",
+        "Fuse and relay replacement","Wiring repair","Lighting system repair",
+        "Power window motor repair","Central locking system repair","ECU diagnostics and repair",
+        "Sensor replacement",
+    ]),
+    ("BODY AND EXTERIOR", [
+        "Dent repair","Paint touch up or repaint","Bumper repair or replacement",
+        "Windshield repair or replacement","Side mirror replacement",
+        "Headlight restoration or replacement","Rust removal and treatment",
+        "Door alignment and hinge repair",
+    ]),
+    ("INTERIOR", [
+        "Seat repair or reupholstery","Dashboard repair","Carpet cleaning or replacement",
+        "Headliner repair","Power seat motor repair","Interior trim repair",
+        "Infotainment system repair or upgrade","Airbag system repair",
+    ]),
+    ("TIRES AND WHEELS", [
+        "Tire replacement","Tire rotation","Wheel alignment","Wheel balancing",
+        "Puncture repair","Rim repair or replacement",
+    ]),
+    ("EXHAUST SYSTEM", [
+        "Muffler repair or replacement","Exhaust pipe repair",
+        "Catalytic converter replacement","Oxygen sensor replacement",
+    ]),
+    ("COOLING SYSTEM", [
+        "Radiator flush","Hose replacement","Cooling fan repair","Coolant leak repair",
+    ]),
+    ("SAFETY AND DRIVER ASSIST", [
+        "Airbag diagnostics and repair","Parking sensor repair",
+        "Backup camera repair","ADAS calibration for newer vehicles",
+    ]),
+]
+
+
+@login_required
+def repairs(request):
+    q = request.GET.get('q','')
+    qs = Repair.objects.select_related('vehicle','driver').prefetch_related('receipts').all()
+    if q:
+        qs = qs.filter(Q(vehicle__plate_number__icontains=q)|Q(vehicle__brand__icontains=q)|Q(vehicle__model__icontains=q))
+    ctx = {
+        'repairs': qs, 'q': q,
+        'checklist_groups': REPAIR_CHECKLIST,
+    }
+    return render(request, 'repairs.html', ctx)
+
+
+@login_required
+@require_POST
+def repair_save_details(request, pk):
+    repair = get_object_or_404(Repair, pk=pk)
+    try:
+        repair.date_finished = request.POST.get('date_finished') or None
+        repair.repair_shop_name = request.POST.get('repair_shop_name','')
+        repair.total_cost = Decimal(request.POST.get('total_cost') or 0)
+        repair.repair_details = request.POST.get('repair_details','')
+        repair.checklist = request.POST.getlist('checklist')
+        repair.status = 'completed' if repair.date_finished else 'in-progress'
+        repair.save()
+
+        # Handle file uploads
+        for f in request.FILES.getlist('receipts'):
+            RepairReceipt.objects.create(repair=repair, file=f, file_name=f.name)
+
+        # If completed, restore vehicle
+        if repair.status == 'completed':
+            vehicle = repair.vehicle
+            has_active = vehicle.contracts.filter(status='active').exists()
+            vehicle.status = 'in-use' if has_active else 'available'
+            if repair.date_finished:
+                vehicle.last_maintenance = repair.date_finished
+            vehicle.save()
+
+        messages.success(request, 'Repair details saved.')
+    except Exception as e:
+        messages.error(request, f'Error: {e}')
+    return redirect('repairs')
+
+
+@login_required
+@require_POST
+def repair_mark_completed(request, pk):
+    repair = get_object_or_404(Repair, pk=pk)
+    repair.status = 'completed'
+    if not repair.date_finished:
+        repair.date_finished = date.today()
+    repair.save()
+    # Restore vehicle status
+    vehicle = repair.vehicle
+    has_active = vehicle.contracts.filter(status='active').exists()
+    vehicle.status = 'in-use' if has_active else 'available'
+    vehicle.last_maintenance = repair.date_finished
+    vehicle.save()
+    messages.success(request, f'Repair for {vehicle.plate_number} marked as completed.')
+    return redirect('repairs')
+
+
+@login_required
+@require_POST
+def repair_delete(request, pk):
+    repair = get_object_or_404(Repair, pk=pk)
+    repair.delete()
+    messages.success(request, 'Repair log deleted.')
+    return redirect('repairs')
+
+
+def repair_detail_json(request, pk):
+    repair = get_object_or_404(Repair, pk=pk)
+    receipts = [{'id': r.id, 'file_name': r.file_name, 'url': r.file.url} for r in repair.receipts.all()]
+    data = {
+        'id': repair.id,
+        'plate_number': repair.vehicle.plate_number,
+        'vehicle': f"{repair.vehicle.brand} {repair.vehicle.model} ({repair.vehicle.year})",
+        'vehicle_type': repair.vehicle.get_vehicle_type_display(),
+        'driver': repair.driver.full_name if repair.driver else '—',
+        'date_finished': str(repair.date_finished) if repair.date_finished else '',
+        'repair_shop_name': repair.repair_shop_name,
+        'total_cost': str(repair.total_cost),
+        'repair_details': repair.repair_details,
+        'checklist': repair.checklist,
+        'status': repair.status,
+        'receipts': receipts,
+    }
+    return JsonResponse(data)
 
 
 

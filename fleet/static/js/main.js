@@ -194,6 +194,78 @@ function confirmDeletePayment(pk) {
 }
 
 
+// ── Repair modal helpers ──────────────────────────────────────────────────────
+function openRepairDetails(pk) {
+  fetchJSON('/repairs/' + pk + '/detail/').then(function (d) {
+    var form = document.getElementById('repairDetailsForm');
+    form.action = '/repairs/' + pk + '/save/';
+    document.getElementById('rdPlate').textContent = d.plate_number;
+    document.getElementById('rdVehicle').textContent = d.vehicle;
+    document.getElementById('rdDriver').textContent = d.driver;
+    document.getElementById('rdType').textContent = d.vehicle_type;
+    document.getElementById('rdDateFinished').value = d.date_finished;
+    document.getElementById('rdShopName').value = d.repair_shop_name;
+    document.getElementById('rdTotalCost').value = d.total_cost;
+    document.getElementById('rdDetails').value = d.repair_details;
+
+    // Reset checklist
+    document.querySelectorAll('#repairDetailsModal .checklist-item').forEach(function (cb) {
+      cb.checked = d.checklist.includes(cb.value);
+    });
+
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('repairDetailsModal')).show();
+  });
+}
+
+function openViewRepair(pk) {
+  fetchJSON('/repairs/' + pk + '/detail/').then(function (d) {
+    document.getElementById('vrdPlate').textContent = d.plate_number;
+    document.getElementById('vrdVehicle').textContent = d.vehicle;
+    document.getElementById('vrdDriver').textContent = d.driver;
+    document.getElementById('vrdType').textContent = d.vehicle_type;
+    document.getElementById('vrdDateFinished').textContent = d.date_finished || '—';
+    document.getElementById('vrdShop').textContent = d.repair_shop_name || '—';
+    document.getElementById('vrdCost').textContent = d.total_cost ? '₱' + parseFloat(d.total_cost).toLocaleString('en-PH', {minimumFractionDigits:2}) : '—';
+    document.getElementById('vrdStatus').textContent = d.status;
+    document.getElementById('vrdDetails').textContent = d.repair_details || '—';
+
+    var checklist = document.getElementById('vrdChecklist');
+    if (d.checklist && d.checklist.length) {
+      checklist.innerHTML = d.checklist.map(function (item) {
+        return '<li>' + item + '</li>';
+      }).join('');
+    } else {
+      checklist.innerHTML = '<li class="text-muted">None selected</li>';
+    }
+
+    var receipts = document.getElementById('vrdReceipts');
+    if (d.receipts && d.receipts.length) {
+      receipts.innerHTML = d.receipts.map(function (r) {
+        return '<a href="' + r.url + '" target="_blank" class="d-flex align-items-center gap-2 text-decoration-none border rounded p-2 me-2 mb-2" style="font-size:0.85rem">' +
+          '<i class="bi bi-file-earmark-text text-primary"></i>' + r.file_name + '</a>';
+      }).join('');
+    } else {
+      receipts.innerHTML = '<span class="text-muted">No receipts uploaded.</span>';
+    }
+
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('viewRepairModal')).show();
+  });
+}
+
+function confirmCompleteRepair(pk, name) {
+  var el = document.getElementById('completeRepairModal');
+  document.getElementById('completeRepairForm').action = '/repairs/' + pk + '/complete/';
+  document.getElementById('completeRepairName').textContent = name;
+  bootstrap.Modal.getOrCreateInstance(el).show();
+}
+
+function confirmDeleteRepair(pk, name) {
+  document.getElementById('deleteRepairForm').action = '/repairs/' + pk + '/delete/';
+  document.getElementById('deleteRepairName').textContent = name;
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('deleteRepairModal')).show();
+}
+
+
 // ── live search ─────────────────────────────────────────────────────
 const searchInput = document.querySelector('input[name="q"]');
 const rows = document.querySelectorAll('tbody tr');
