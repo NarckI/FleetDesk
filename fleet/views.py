@@ -32,6 +32,13 @@ def logout_user(request):
     logout(request)
     return redirect('login')
 
+def payments(request):
+    if request.user.is_authenticated:
+        return render(request, 'payments.html', {})
+
+def notifications(request):
+    if request.user.is_authenticated:
+        return render(request, 'notifications.html', {})
 # ── Dashboard ──────────────────────────────────────────────────────────────────
 @login_required
 def home(request):
@@ -295,13 +302,7 @@ def contract_delete(request, pk):
     return redirect('contracts')
 
 
-def payments(request):
-    if request.user.is_authenticated:
-        return render(request, 'payments.html', {})
 
-def notifications(request):
-    if request.user.is_authenticated:
-        return render(request, 'notifications.html', {})
 
 
 # ── Payments ──────────────────────────────────────────────────────────────────
@@ -513,6 +514,10 @@ def repair_mark_completed(request, pk):
 @require_POST
 def repair_delete(request, pk):
     repair = get_object_or_404(Repair, pk=pk)
+    vehicle = repair.vehicle
+    has_active = vehicle.contracts.filter(status='active').exists()
+    vehicle.status = 'in-use' if has_active else 'available'
+    vehicle.save()
     repair.delete()
     messages.success(request, 'Repair log deleted.')
     return redirect('repairs')
