@@ -129,10 +129,6 @@ function openAddContract() {
 }
 
 function openEditContract(pk) {
-  var modalEl = document.getElementById('editContractModal');
-  var modal = bootstrap.Modal.getOrCreateInstance(modalEl);
-  modal.show();
-
   Promise.all([
     fetchJSON('/contracts/' + pk + '/data/'),
     fetchJSON('/contracts/drivers/'),
@@ -163,8 +159,11 @@ function openEditContract(pk) {
     document.getElementById('editContractStartDate').value = d.start_date;
     document.getElementById('editContractEndDate').value = d.end_date;
     document.getElementById('editContractStatus').value = d.status;
+
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('editContractModal')).show();
   }).catch(function (err) {
-    console.error('Failed to load contract edit data', err);
+    console.error('Failed to load contract edit data:', err);
+    bootstrap.Modal.getOrCreateInstance(document.getElementById('editContractModal')).show();
   });
 }
 
