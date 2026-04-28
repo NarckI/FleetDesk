@@ -179,6 +179,20 @@ function confirmDeleteContract(pk, name) {
   bootstrap.Modal.getOrCreateInstance(document.getElementById('deleteContractModal')).show();
 }
 
+// ── Payment modal helpers ─────────────────────────────────────────────────────
+function openPartialPayment(pk, balance) {
+  document.getElementById('partialPayForm').action = '/payments/' + pk + '/partial/';
+  document.getElementById('partialBalance').textContent = '₱' + parseFloat(balance).toLocaleString('en-PH', {minimumFractionDigits: 2});
+  document.getElementById('partialAmount').value = '';
+  document.getElementById('partialAmount').max = balance;
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('partialPayModal')).show();
+}
+
+function confirmDeletePayment(pk) {
+  document.getElementById('deletePaymentForm').action = '/payments/' + pk + '/delete/';
+  bootstrap.Modal.getOrCreateInstance(document.getElementById('deletePaymentModal')).show();
+}
+
 
 // ── live search ─────────────────────────────────────────────────────
 const searchInput = document.querySelector('input[name="q"]');

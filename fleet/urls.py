@@ -30,7 +30,12 @@ urlpatterns = [
     path('contracts/drivers/', views.contract_drivers_json, name='contract_drivers_json'),
     path('contracts/vehicles/', views.contract_vehicles_json, name='contract_vehicles_json'),
 
-    path('repairs/', views.repairs, name='repairs'),
+    # Payments
     path('payments/', views.payments, name='payments'),
+    path('payments/<int:pk>/mark-paid/', views.payment_mark_paid, name='payment_mark_paid'),
+    path('payments/<int:pk>/partial/', views.payment_partial, name='payment_partial'),
+    path('payments/<int:pk>/delete/', views.payment_delete, name='payment_delete'),
+
+    path('repairs/', views.repairs, name='repairs'),
     path('notifications/', views.notifications, name='notifications'),
 ]

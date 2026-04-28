@@ -4,11 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.contrib import messages
-from django.db.models import Q
+from django.db.models import Q, Sum
 from decimal import Decimal
 from datetime import date
-from .models import Driver, Vehicle, Contract, Repair
-from .services import auto_expire_contracts, run_daily_tasks
+from .models import Driver, Vehicle, Contract, Repair, Payment
+from .services import auto_expire_contracts, run_daily_tasks, mark_overdue_payments, generate_daily_payments
 
 
 # Create your views here.
@@ -37,6 +37,8 @@ def logout_user(request):
 def home(request):
     run_daily_tasks()
     recent_contracts = Contract.objects.select_related('driver','vehicle').order_by('-created_at')[:6]
+    recent_payments = Payment.objects.select_related('contract__driver').order_by('-created_at')[:6]
+    paid_agg = Payment.objects.filter(status='paid').aggregate(t=Sum('amount_paid'))
     ctx = {
         'total_drivers': Driver.objects.count(),
         'active_drivers': Driver.objects.filter(status='active').count(),
@@ -44,6 +46,11 @@ def home(request):
         'available_vehicles': Vehicle.objects.filter(status='available').count(),
         'active_contracts': Contract.objects.filter(status='active').count(),
         'recent_contracts': recent_contracts,
+        'revenue_paid': paid_agg['t'] or 0,
+        'payment_count': Payment.objects.filter(status='paid').count(),
+        'pending_payments': Payment.objects.filter(status='pending').count(),
+        'overdue_payments': Payment.objects.filter(status='overdue').count(),
+        'recent_payments': recent_payments,
     }
     return render(request, 'home.html', ctx)
 
@@ -292,6 +299,80 @@ def payments(request):
 def notifications(request):
     if request.user.is_authenticated:
         return render(request, 'notifications.html', {})
+
+
+# ── Payments ──────────────────────────────────────────────────────────────────
+
+@login_required
+def payments(request):
+    mark_overdue_payments()
+    generate_daily_payments()
+    status_filter = request.GET.get('status','')
+    q = request.GET.get('q','')
+    qs = Payment.objects.select_related('contract__driver','contract__vehicle').order_by('-due_date', '-created_at')
+    if status_filter:
+        qs = qs.filter(status=status_filter)
+    if q:
+        qs = qs.filter(Q(contract__driver__first_name__icontains=q)|Q(contract__driver__last_name__icontains=q))
+
+    total_paid = Payment.objects.filter(status='paid').aggregate(t=Sum('amount_paid'))['t'] or 0
+    total_pending = Payment.objects.filter(status='pending').aggregate(t=Sum('balance'))['t'] or 0
+    total_overdue = Payment.objects.filter(status='overdue').aggregate(t=Sum('balance'))['t'] or 0
+    payment_count = Payment.objects.filter(status='paid').count()
+    pending_count = Payment.objects.filter(status='pending').count()
+    overdue_count = Payment.objects.filter(status='overdue').count()
+
+    ctx = {
+        'payments': qs, 'status_filter': status_filter, 'q': q,
+        'total_paid': total_paid, 'total_pending': total_pending, 'total_overdue': total_overdue,
+        'pending_count': pending_count, 'overdue_count': overdue_count, 'payment_count': payment_count,
+    }
+    return render(request, 'payments.html', ctx)
+
+
+@login_required
+@require_POST
+def payment_mark_paid(request, pk):
+    payment = get_object_or_404(Payment, pk=pk)
+    payment.amount_paid = payment.amount
+    payment.balance = Decimal('0')
+    payment.paid_date = date.today()
+    payment.status = 'paid'
+    payment.save()
+    messages.success(request, 'Payment marked as paid.')
+    return redirect('payments')
+
+
+@login_required
+@require_POST
+def payment_partial(request, pk):
+    payment = get_object_or_404(Payment, pk=pk)
+    try:
+        amount = Decimal(request.POST['amount'])
+        if amount <= 0:
+            raise ValueError('Amount must be positive')
+        if amount > payment.balance:
+            raise ValueError('Amount exceeds balance')
+        payment.amount_paid += amount
+        payment.balance = payment.amount - payment.amount_paid
+        payment.paid_date = date.today()
+        payment.status = 'paid' if payment.balance <= 0 else 'partial'
+        payment.save()
+        messages.success(request, f'Partial payment of ₱{amount:,.2f} recorded.')
+    except Exception as e:
+        messages.error(request, f'Error: {e}')
+    return redirect('payments')
+
+
+@login_required
+@require_POST
+def payment_delete(request, pk):
+    payment = get_object_or_404(Payment, pk=pk)
+    payment.delete()
+    messages.success(request, 'Payment deleted.')
+    return redirect('payments')
+
+
 
 
 # ----- AJAX Helpers -----
