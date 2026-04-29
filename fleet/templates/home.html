@@ -90,11 +90,11 @@
                     {% for c in recent_contracts %}
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <small class="d-flex mb-0 fw-semibold">{{ c.driver.full_name }}</small>
+                            <small class="d-block mb-0 fw-semibold">{{ c.driver.full_name }}</small>
                             <small class="text-muted">{{ c.vehicle.plate_number }}</small>
                         </div>
-                        <div>
-                            <small class="d-flex justify-content-end mb-0">₱{{ c.daily_rate }}/day</small>
+                        <div class="text-end">
+                            <small class="d-block justify-content-end mb-0">₱{{ c.daily_rate }}/day</small>
                             <span class="badge-status {{ c.status }}">{{ c.status }}</span>
                         </div>
                     </div>
@@ -112,11 +112,11 @@
                     {% for p in recent_payments %}
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <small class="d-flex mb-0 fw-semibold">Contract #{{ p.contract.id }}</small>
+                            <small class="d-block mb-0 fw-semibold">Contract #{{ p.contract.id }}</small>
                             <small class="text-muted">Due: {{ p.due_date }}</small>
                         </div>
-                        <div>
-                            <small class="d-flex justify-content-end mb-0">₱{{ p.amount|floatformat:0 }}</small>
+                        <div class="text-end">
+                            <small class="d-block mb-0">₱{{ p.amount|floatformat:0 }}</small>
                             <span class="badge-status {{ p.status }}">{{ p.status }}</span>
                         </div>
                     </div>
