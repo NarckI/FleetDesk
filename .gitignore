@@ -1,5 +1,5 @@
 # Ignore local Django settings file
-fleet/__pychache__/
+fleet/__pycache__/
 fleetdesk/__pycache__/
 __pycache__/
 *.pyc
@@ -9,4 +9,6 @@ fleet/media/
 staticfiles/
 fleet/staticfiles/
 .idea/
-
+.claude/
+fleetdesk/settings.py
+fleetdesk/
