@@ -1,4 +1,6 @@
 from django.urls import path
+from django.conf.urls.static import static
+from django.conf import settings
 from . import views
 
 urlpatterns = [
@@ -47,4 +49,4 @@ urlpatterns = [
     path('notifications/', views.notifications, name='notifications'),
     path('notifications/<int:pk>/read/', views.notification_mark_read, name='notification_mark_read'),
     path('notifications/read-all/', views.notification_mark_all_read, name='notification_mark_all_read'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
