@@ -223,6 +223,7 @@ def vehicle_create_repair(request, pk):
 def contracts(request):
     auto_expire_contracts()
     q = request.GET.get('q','')
+    page_number = request.GET.get('page')
     qs = Contract.objects.select_related('driver','vehicle').annotate(
         status_order=Case(
             When(status='terminated', then=Value(1)),
@@ -239,8 +240,11 @@ def contracts(request):
     )
     available_vehicles = Vehicle.objects.filter(status='available')
 
+    paginator = Paginator(qs, 10)
+    contracts_page = paginator.get_page(page_number)
+
     ctx = {
-        'contracts': qs, 'q': q,
+        'contracts': contracts_page, 'q': q,
         'available_drivers': available_drivers,
         'available_vehicles': available_vehicles,
         'unread_notifications': Notification.objects.filter(is_read=False).count(),
