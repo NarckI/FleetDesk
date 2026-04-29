@@ -469,11 +469,15 @@ REPAIR_CHECKLIST = [
 @login_required
 def repairs(request):
     q = request.GET.get('q','')
+    page_number = request.GET.get('page')
     qs = Repair.objects.select_related('vehicle','driver').prefetch_related('receipts').all()
     if q:
         qs = qs.filter(Q(vehicle__plate_number__icontains=q)|Q(vehicle__brand__icontains=q)|Q(vehicle__model__icontains=q))
+
+    paginator = Paginator(qs, 10)
+    repairs_page = paginator.get_page(page_number)
     ctx = {
-        'repairs': qs, 'q': q,
+        'repairs': repairs_page, 'q': q,
         'checklist_groups': REPAIR_CHECKLIST,
         'unread_notifications': Notification.objects.filter(is_read=False).count(),
     }

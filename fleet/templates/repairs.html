@@ -80,6 +80,40 @@
             </tbody>
         </table>
     </div>
+    
+    <!-- Pagination -->
+        {% if repairs.has_other_pages %}
+        <div class="d-flex justify-content-between align-items-center mt-3">
+            <small class="text-muted">
+                Showing {{ repairs.start_index }}–{{ repairs.end_index }} of {{ repairs.paginator.count }} repairs
+            </small>
+            <nav>
+                <ul class="pagination mb-0">
+
+                    <li class="page-item {% if not repairs.has_previous %}disabled{% endif %}">
+                        <a class="page-link" href="{% if repairs.has_previous %}?q={{ q }}&page={{ repairs.previous_page_number }}{% else %}#{% endif %}">‹</a>
+                    </li>
+
+                    {% for num in repairs.paginator.page_range %}
+                        {% if repairs.number == num %}
+                            <li class="page-item active">
+                                <span class="page-link">{{ num }}</span>
+                            </li>
+                        {% elif num > repairs.number|add:'-3' and num < repairs.number|add:'3' %}
+                            <li class="page-item">
+                                <a class="page-link" href="?q={{ q }}&page={{ num }}">{{ num }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    <li class="page-item {% if not repairs.has_next %}disabled{% endif %}">
+                        <a class="page-link" href="{% if repairs.has_next %}?q={{ q }}&page={{ repairs.next_page_number }}{% else %}#{% endif %}">›</a>
+                    </li>
+
+                </ul>
+            </nav>
+        </div>
+        {% endif %}
     <!-- Edit/Fill Repair Details Modal -->
     <div class="modal fade" id="repairDetailsModal" tabindex="-1">
         <div class="modal-dialog modal-xl modal-dialog-scrollable">
