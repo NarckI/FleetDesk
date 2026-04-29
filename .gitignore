@@ -1,4 +1,4 @@
 # Ignore local Django settings file
-settings.py
+fleetdesk/settings.py
 fleet/__pychache__/
 fleetdesk/__pycache__/
