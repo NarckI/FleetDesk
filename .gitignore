@@ -6,3 +6,5 @@ __pycache__/
 *.pyc
 # Ignore database files
 media/repair_receipts/
+media/
+staticfiles/
