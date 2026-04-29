@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.db.models import Q, Sum, Case, When, Value, IntegerField
 from decimal import Decimal
 from datetime import date
+from django.core.paginator import Paginator
 from .models import Driver, Vehicle, Contract, Payment, Repair, Notification
 from .services import auto_expire_contracts, run_daily_tasks, mark_overdue_payments, generate_daily_payments
 
@@ -59,6 +60,7 @@ def home(request):
 @login_required
 def drivers(request):
     q = request.GET.get('q','')
+    page_number = request.GET.get('page')
     qs = Driver.objects.all().annotate(
         status_order=Case(
             When(status='suspended', then=Value(2)),
@@ -69,7 +71,9 @@ def drivers(request):
     ).order_by('status_order', '-created_at')
     if q:
         qs = qs.filter(Q(first_name__icontains=q)|Q(last_name__icontains=q)|Q(license_number__icontains=q)|Q(phone__icontains=q)|Q(email__icontains=q))
-    ctx = {'drivers': qs, 'q': q, 'unread_notifications': Notification.objects.filter(is_read=False).count()}
+    paginator = Paginator(qs, 10)
+    drivers_page = paginator.get_page(page_number)
+    ctx = {'drivers': drivers_page, 'q': q, 'unread_notifications': Notification.objects.filter(is_read=False).count()}
     return render(request, 'drivers.html', ctx)
 
 
