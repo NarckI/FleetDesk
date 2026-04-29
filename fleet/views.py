@@ -327,6 +327,7 @@ def payments(request):
     generate_daily_payments()
     status_filter = request.GET.get('status','')
     q = request.GET.get('q','')
+    page_number = request.GET.get('page')
     qs = Payment.objects.select_related('contract__driver','contract__vehicle').order_by('-due_date', '-created_at')
     if status_filter:
         qs = qs.filter(status=status_filter)
@@ -340,8 +341,11 @@ def payments(request):
     pending_count = Payment.objects.filter(status='pending').count()
     overdue_count = Payment.objects.filter(status='overdue').count()
 
+    paginator = Paginator(qs, 20)
+    payments_page = paginator.get_page(page_number)
+
     ctx = {
-        'payments': qs, 'status_filter': status_filter, 'q': q,
+        'payments': payments_page, 'status_filter': status_filter, 'q': q,
         'total_paid': total_paid, 'total_pending': total_pending, 'total_overdue': total_overdue,
         'pending_count': pending_count, 'overdue_count': overdue_count, 'payment_count': payment_count,
         'unread_notifications': Notification.objects.filter(is_read=False).count(),
