@@ -5,7 +5,8 @@ fleetdesk/__pycache__/
 __pycache__/
 *.pyc
 # Ignore database files
-media/repair_receipts/
-media/
+fleet/media/repair_receipts/
+fleet/media/
 staticfiles/
+fleet/staticfiles/
 .idea/
