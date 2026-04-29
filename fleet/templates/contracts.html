@@ -3,7 +3,7 @@
 
 {% block content %}
 <main class="main-content">
-    <div class="container-md my-4">
+    <div class="container-xl my-4">
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h3 class="h3">Contract Management</h3>
@@ -26,50 +26,52 @@
         </div>
 
             <!--Table-->
-            <table class="table table-hover mt-3">
-                <thead>
-                <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Driver</th>
-                    <th scope="col">Vehicle</th>
-                    <th scope="col">Start Date</th>
-                    <th scope="col">End Date</th>
-                    <th scope="col">Daily Rate</th>
-                    <th scope="col">Status</th>
-                    <th scope="col" class="text-end">Actions</th>
-                </tr>
-                </thead>
-                <tbody>
-                    {% for c in contracts %}
+            <div class="table-responsive">
+                <table class="table table-hover mt-3">
+                    <thead>
                     <tr>
-                        <td class="fw-semibold">#{{ c.pk }}</td>
-                        <td class="fw-semibold">{{ c.driver.full_name }}</td>
-                        <td>{{ c.vehicle.plate_number }} — {{ c.vehicle.brand }} {{ c.vehicle.model }}</td>
-                        <td>{{ c.start_date }}</td>
-                        <td>{{ c.end_date }}</td>
-                        <td>₱{{ c.daily_rate|floatformat:0 }}</td>
-                        <td><span class="badge-status {{ c.status }}">{{ c.status }}</span></td>
-                        <td>
-                            <div class="d-flex gap-1 justify-content-end">
-                                {% if c.status != 'terminated' %}
-                                <button class="btn-action primary" title="Edit" onclick="openEditContract({{ c.pk }})">
-                                    <img src="..\static\image\pencil.svg" alt="Edit">
-                                </button>
-                                <button class="btn-action danger" title="Terminate"
-                                        onclick="confirmTerminateContract({{ c.pk }}, 'Contract #{{ c.pk }}')">
-                                    <img src="..\static\image\trash.svg" alt="Delete">
-                                </button>
-                                {% endif %}
-                            </div>
-                        </td>
+                        <th scope="col">#</th>
+                        <th scope="col">Driver</th>
+                        <th scope="col">Vehicle</th>
+                        <th scope="col">Start Date</th>
+                        <th scope="col">End Date</th>
+                        <th scope="col">Daily Rate</th>
+                        <th scope="col">Status</th>
+                        <th scope="col" class="text-end">Actions</th>
                     </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="8" class="text-center text-muted py-4">No contracts found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {% for c in contracts %}
+                        <tr>
+                            <td class="fw-semibold">#{{ c.pk }}</td>
+                            <td class="fw-semibold">{{ c.driver.full_name }}</td>
+                            <td>{{ c.vehicle.plate_number }} — {{ c.vehicle.brand }} {{ c.vehicle.model }}</td>
+                            <td>{{ c.start_date }}</td>
+                            <td>{{ c.end_date }}</td>
+                            <td>₱{{ c.daily_rate|floatformat:0 }}</td>
+                            <td><span class="badge-status {{ c.status }}">{{ c.status }}</span></td>
+                            <td>
+                                <div class="d-flex gap-1 justify-content-end">
+                                    {% if c.status != 'terminated' %}
+                                    <button class="btn-action primary" title="Edit" onclick="openEditContract({{ c.pk }})">
+                                        <img src="..\static\image\pencil.svg" alt="Edit">
+                                    </button>
+                                    <button class="btn-action danger" title="Terminate"
+                                            onclick="confirmTerminateContract({{ c.pk }}, 'Contract #{{ c.pk }}')">
+                                        <img src="..\static\image\trash.svg" alt="Delete">
+                                    </button>
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">No contracts found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
 
     <!--- Add contract modal-->

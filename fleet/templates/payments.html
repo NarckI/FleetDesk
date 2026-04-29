@@ -8,106 +8,117 @@
         <p class="text-muted">Track and manage payments</p>
     </div>
 
-    <div class="container-md my-4">
+    <div class="container-xl my-4">
         <div class="row g-3">
             <div class="col-12 col-sm-6 col-lg-4">
-                <div class="p-4 text-dark box">
+                <div class="p-4 box">
                     <div class="d-flex align-items-center justify-content-between">
                         <span class="h5 text-muted mb-0">Total Paid</span>
-                        <img src="..\static\image\currency-dollar.svg" alt="Money" style="width:20px;height:20px;">
+                        <img id="currency-success"src="..\static\image\currency-dollar.svg" alt="Money" style="width:30px;height:30px;">
                     </div>
                     <div class="h4 fw-semibold mt-2 mb-0">₱{{ total_paid|floatformat:0 }}</div>
                     <div class="text-muted small">{{ payment_count|default:0 }} payment(s)</div>
                 </div>
             </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="p-4 box">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span class="h5 text-muted mb-0">Pending Collection</span>
+                        <img id="currency-pending"src="..\static\image\currency-dollar.svg" alt="Money" style="width:30px;height:30px;">
+                    </div>    
+                    <div class="h4 fw-semibold mt-2 mb-0">₱{{ total_pending|floatformat:0 }}</div>
+                    <div class="text-muted small">{{ pending_count }} payments</div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-4">
+                <div class="p-4 box">
+                    <div class="d-flex align-items-center justify-content-between">
+                        <span class="h5 text-muted mb-0">Overdue</span>
+                        <img id="currency-overdue"src="..\static\image\currency-dollar.svg" alt="Money" style="width:30px;height:30px;">
+                    </div>    
+                    <div class="h4 fw-semibold mt-2 mb-0">₱{{ total_overdue|floatformat:0 }}</div>
+                    <div class="text-muted small">{{ overdue_count }} payments</div>
+                </div>
+            </div>
+        </div>
+        <!--Search Payments-->
+        <div class="box mt-4 p-3">
+            <form method="get">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="input-group flex-grow-1">
+                        <button class="input-group-text bg-white border-0" type="submit">
+                            <img src="..\static\image\search.svg" alt="Search Icon">
+                        </button>
+                        <input type="search" name="q" value="{{ q }}" class="form-control border-0" placeholder="Search payments...">
+                    </div>
+                    <select name="status" class="form-select" style="max-width:140px;" onchange="this.form.submit()">
+                        <option value="" {% if not status_filter %}selected{% endif %}>All Status</option>
+                        <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
+                        <option value="paid" {% if status_filter == 'paid' %}selected{% endif %}>Paid</option>
+                        <option value="overdue" {% if status_filter == 'overdue' %}selected{% endif %}>Overdue</option>
+                        <option value="partial" {% if status_filter == 'partial' %}selected{% endif %}>Partial</option>
+                    </select>
+                </div>
+                {% if q %}<a href="{% url 'vehicles' %}" class="btn btn-dark">Clear</a>{% endif %}
+            </form>
+        
+            <!--Table-->
+            <div class="table-responsive">
+                <table class="table table-hover mt-3">
+                    <thead>
+                        <tr>
+                            <th scope="col">Contract</th>
+                            <th scope="col">Driver</th>
+                            <th scope="col">Amount</th>
+                            <th scope="col">Due Date</th>
+                            <th scope="col">Paid Date</th>
+                            <th scope="col">Balance</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="align-items-center">
+                        {% for p in payments %}
+                        <tr>
+                            <td class="text-muted">#{{ p.contract.pk }}</td>
+                            <td class="fw-semibold">{{ p.contract.driver.full_name }}</td>
+                            <td>₱{{ p.amount|floatformat:0 }}</td>
+                            <td>{{ p.due_date }}</td>
+                            <td>{{ p.paid_date|default:"—" }}</td>
+                            <td>₱{{ p.balance|floatformat:0 }}</td>
+                            <td><span class="badge-status {{ p.status }}">{{ p.status }}</span></td>
+                            <td class="d-flex justify-content-end">
+                                <div class="d-flex gap-1 align-items-center">
+                                    {% if p.status == 'paid' %}
+                                    <span class="d-flex align-items-center text-success small fw-semibold">
+                                        <img id="paid" src="..\static\vendor\bootstrap-icons\icons\check.svg" alt="Check" style="width: 25px; height: 25px;">Paid</span>
+                                    {% else %}
+                                    <button class="d-flex gap-2 btn btn-sm btn-outline-secondary text-dark fw-semibold" title="Partial Payment" onclick="openPartialPayment({{ p.pk }}, '{{ p.balance }}')">
+                                        <img src="..\static\vendor\bootstrap-icons\icons\credit-card.svg" alt="Credit Card">Partial
+                                    </button>
+                                    <form method="post" action="{% url 'payment_mark_paid' p.pk %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="d-flex gap-2 btn btn-sm btn-dark" title="Mark as Paid">
+                                            <img id="mark-paid"src="..\static\vendor\bootstrap-icons\icons\check2-circle.svg" alt="Check">Mark Paid
+                                        </button>
+                                    </form>
+                                    {% endif %}
+                                    <button class="btn-action danger ms-1" title="Delete"onclick="confirmDeletePayment({{ p.pk }})">
+                                        <img src="..\static\image\trash.svg" alt="Delete">
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="8" class="text-center text-muted py-4">No payments found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
-    <div class="stat-icon bg-success bg-opacity-10 text-success"><i class="bi bi-cash-stack"></i></div>
-
-    <div class="text-muted small mb-1">Pending Collection</div>
-    <div class="fs-4 fw-bold text-warning">₱{{ total_pending|floatformat:0 }}</div>
-    <div class="text-muted small">{{ pending_count }} payments</div>
-
-    <div class="stat-icon bg-warning bg-opacity-10 text-warning"><i class="bi bi-hourglass-split"></i></div>
-
-    <div class="text-muted small mb-1">Overdue</div>
-    <div class="fs-4 fw-bold text-danger">₱{{ total_overdue|floatformat:0 }}</div>
-    <div class="text-muted small">{{ overdue_count }} payments</div>
-    <div class="stat-icon bg-danger bg-opacity-10 text-danger"><i class="bi bi-exclamation-circle-fill"></i></div>
-
-    <!--Search-->
-    <form method="get" class="d-flex gap-2">
-        <input type="search" name="q" value="{{ q }}" class="form-control" placeholder="Search vehicles…"
-               style="max-width:400px;">
-        <select name="status" class="form-select" style="max-width:160px;" onchange="this.form.submit()">
-            <option value="" {% if not status_filter %}selected{% endif %}>All Status</option>
-            <option value="pending" {% if status_filter == 'pending' %}selected{% endif %}>Pending</option>
-            <option value="paid" {% if status_filter == 'paid' %}selected{% endif %}>Paid</option>
-            <option value="overdue" {% if status_filter == 'overdue' %}selected{% endif %}>Overdue</option>
-            <option value="partial" {% if status_filter == 'partial' %}selected{% endif %}>Partial</option>
-        </select>
-        <button class="btn btn-outline-secondary" type="submit"><i class="bi bi-search"></i></button>
-        {% if q or status_filter %}<a href="{% url 'payments' %}" class="btn btn-outline-secondary">Clear</a>{% endif %}
-    </form>
-
-    <!--Table-->
-    <div class="table-responsive mt-3">
-        <table class="table table-hover align-middle">
-            <thead>
-            <tr>
-                <th>Contract</th>
-                <th>Driver</th>
-                <th>Amount</th>
-                <th>Due Date</th>
-                <th>Paid Date</th>
-                <th>Balance</th>
-                <th>Status</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for p in payments %}
-            <tr>
-                <td class="text-muted">#{{ p.contract.pk }}</td>
-                <td class="fw-semibold">{{ p.contract.driver.full_name }}</td>
-                <td>₱{{ p.amount|floatformat:0 }}</td>
-                <td>{{ p.due_date }}</td>
-                <td>{{ p.paid_date|default:"—" }}</td>
-                <td>₱{{ p.balance|floatformat:0 }}</td>
-                <td><span class="status-badge badge-{{ p.status }}">{{ p.status }}</span></td>
-                <td>
-                    <div class="d-flex gap-1 align-items-center">
-                        {% if p.status == 'paid' %}
-                        <span class="text-success small fw-semibold"><i
-                                class="bi bi-check-circle-fill me-1"></i>Paid</span>
-                        {% else %}
-                        <button class="btn btn-sm btn-outline-secondary" title="Partial Payment"
-                                onclick="openPartialPayment({{ p.pk }}, '{{ p.balance }}')">
-                            <i class="bi bi-credit-card me-1"></i>Partial
-                        </button>
-                        <form method="post" action="{% url 'payment_mark_paid' p.pk %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="btn btn-sm btn-success" title="Mark as Paid">
-                                <i class="bi bi-check-circle me-1"></i>Mark Paid
-                            </button>
-                        </form>
-                        {% endif %}
-                        <button class="btn-action danger ms-1" title="Delete"
-                                onclick="confirmDeletePayment({{ p.pk }})">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="8" class="text-center text-muted py-4">No payments found.</td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-
 
     <!--Partial Payment Modal-->
     <div class="modal fade" id="partialPayModal" tabindex="-1">

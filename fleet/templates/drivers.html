@@ -4,7 +4,7 @@
 
 {% block content %}
 <main class="main-content">
-    <div class="container-md my-4">
+    <div class="container-xl my-4">
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h3 class="h3">Driver Management</h3>
@@ -26,46 +26,48 @@
             </form>
         
         <!-- Table -->
-            <table class="table table-hover mt-3">
-                <thead>
-                    <tr>
-                        <th scope="col">Name</th>
-                        <th scope="col">License #</th>
-                        <th scope="col">Phone</th>
-                        <th scope="col">Email</th>
-                        <th scope="col">License Expiry</th>
-                        <th scope="col">Status</th>
-                        <th scope="col" class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="align-items-center">
-                    {% for d in drivers %}
-                    <tr>
-                        <td><span class="fw-medium">{{ d.full_name }}</span></td>
-                        <td>{{ d.license_number }}</td>
-                        <td>{{ d.phone|default:"—" }}</td>
-                        <td>{{ d.email|default:"—" }}</td>
-                        <td>{{ d.license_expiry }}</td>
-                        <td><span class="badge-status {{ d.status }}">{{ d.status }}</span></td>
-                        <td class="text-end">
-                            <div class="d-flex gap-1 justify-content-end">
-                                <button class="btn-action" title="Edit" onclick="openEditDriver({{ d.pk }})">
-                                    <img src="{% static 'image/pencil.svg' %}" alt="Edit">
-                                </button>
-                                <button class="btn-action" title="Delete"
-                                        onclick="confirmDeleteDriver({{ d.pk }}, '{{ d.full_name|escapejs }}')">
-                                    <img src="{% static 'image/trash.svg' %}" alt="Delete">
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="9" class="text-center text-muted py-4">No drivers found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover mt-3">
+                    <thead>
+                        <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">License #</th>
+                            <th scope="col">Phone</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">License Expiry</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="align-items-center">
+                        {% for d in drivers %}
+                        <tr>
+                            <td><span class="fw-medium">{{ d.full_name }}</span></td>
+                            <td>{{ d.license_number }}</td>
+                            <td>{{ d.phone|default:"—" }}</td>
+                            <td>{{ d.email|default:"—" }}</td>
+                            <td>{{ d.license_expiry }}</td>
+                            <td><span class="badge-status {{ d.status }}">{{ d.status }}</span></td>
+                            <td class="text-end">
+                                <div class="d-flex gap-1 justify-content-end">
+                                    <button class="btn-action" title="Edit" onclick="openEditDriver({{ d.pk }})">
+                                        <img src="{% static 'image/pencil.svg' %}" alt="Edit">
+                                    </button>
+                                    <button class="btn-action" title="Delete"
+                                            onclick="confirmDeleteDriver({{ d.pk }}, '{{ d.full_name|escapejs }}')">
+                                        <img src="{% static 'image/trash.svg' %}" alt="Delete">
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-4">No drivers found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 

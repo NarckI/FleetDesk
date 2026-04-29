@@ -4,7 +4,7 @@
 
 {% block content %}
 <main class="main-content">
-    <div class="container-md my-4">
+    <div class="container-xl my-4">
         <div class="d-flex justify-content-between align-items-center">
             <div>
                 <h3 class="h3">Vehicle Management</h3>
@@ -24,54 +24,56 @@
             </form>
 
             <!--Table-->
-            <table class="table table-hover mt-3">
-                <thead>
-                    <tr>
-                        <th scope="col">Plate Number</th>
-                        <th scope="col">Brand</th>
-                        <th scope="col">Model</th>
-                        <th scope="col">Year</th>
-                        <th scope="col">Type</th>
-                        <th scope="col">Mileage</th>
-                        <th scope="col">Last Maintenance</th>
-                        <th scope="col">Status</th>
-                        <th scope="col" class="text-end">Actions</th>
-                    </tr>
-                </thead>
-                <tbody class="align-items-center">
-                    {% for v in vehicles %}
-                    <tr>
-                        <td span class="fw-medium">{{ v.plate_number }}</td>
-                        <td>{{ v.brand }}</td>
-                        <td>{{ v.model }}</td>
-                        <td>{{ v.year }}</td>
-                        <td>{{ v.get_vehicle_type_display }}</td>
-                        <td>{{ v.mileage|default:0 }} km</td>
-                        <td>{{ v.last_maintenance|default:"—" }}</td>
-                        <td><span class="badge-status {{ v.status }}">{{ v.get_status_display }}</span></td>
-                        <td class="text-end">
-                            <div class="d-flex gap-1 justify-content-end">
-                                <button class="btn-action primary" title="Edit" onclick="openEditVehicle({{ v.pk }})">
-                                    <img src="{% static 'image/pencil.svg' %}" alt="Edit">
-                                </button>
-                                <button class="btn-action danger" title="Delete"
-                                        onclick="confirmDeleteVehicle({{ v.pk }}, '{{ v.plate_number }}', '{{ v.brand }}', '{{ v.model }}')">
-                                    <img src="{% static 'image/trash.svg' %}" alt="Delete">
-                                </button>
-                                <button class="btn-action warning" title="Create Repair Log"
-                                        onclick="confirmRepair({{ v.pk }}, '{{ v.plate_number }}', '{{ v.brand }}', '{{ v.model }}')">
-                                    <img src="{% static 'image/tools.svg' %}" alt="Repair">
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr>
-                        <td colspan="9" class="text-center text-muted py-4">No vehicles found.</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="table-responsive">
+                <table class="table table-hover mt-3">
+                    <thead>
+                        <tr>
+                            <th scope="col">Plate Number</th>
+                            <th scope="col">Brand</th>
+                            <th scope="col">Model</th>
+                            <th scope="col">Year</th>
+                            <th scope="col">Type</th>
+                            <th scope="col">Mileage</th>
+                            <th scope="col">Last Maintenance</th>
+                            <th scope="col">Status</th>
+                            <th scope="col" class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody class="align-items-center">
+                        {% for v in vehicles %}
+                        <tr>
+                            <td span class="fw-medium">{{ v.plate_number }}</td>
+                            <td>{{ v.brand }}</td>
+                            <td>{{ v.model }}</td>
+                            <td>{{ v.year }}</td>
+                            <td>{{ v.get_vehicle_type_display }}</td>
+                            <td>{{ v.mileage|default:0 }} km</td>
+                            <td>{{ v.last_maintenance|default:"—" }}</td>
+                            <td><span class="badge-status {{ v.status }}">{{ v.get_status_display }}</span></td>
+                            <td class="text-end">
+                                <div class="d-flex gap-1 justify-content-end">
+                                    <button class="btn-action primary" title="Edit" onclick="openEditVehicle({{ v.pk }})">
+                                        <img src="{% static 'image/pencil.svg' %}" alt="Edit">
+                                    </button>
+                                    <button class="btn-action danger" title="Delete"
+                                            onclick="confirmDeleteVehicle({{ v.pk }}, '{{ v.plate_number }}', '{{ v.brand }}', '{{ v.model }}')">
+                                        <img src="{% static 'image/trash.svg' %}" alt="Delete">
+                                    </button>
+                                    <button class="btn-action warning" title="Create Repair Log"
+                                            onclick="confirmRepair({{ v.pk }}, '{{ v.plate_number }}', '{{ v.brand }}', '{{ v.model }}')">
+                                        <img src="{% static 'image/tools.svg' %}" alt="Repair">
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="9" class="text-center text-muted py-4">No vehicles found.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
     <!-- Add Vehicle Modal -->
