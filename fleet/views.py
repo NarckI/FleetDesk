@@ -8,7 +8,7 @@ from django.db.models import Q, Sum, Case, When, Value, IntegerField
 from decimal import Decimal
 from datetime import date
 from django.core.paginator import Paginator
-from .models import Driver, Vehicle, Contract, Payment, Repair, Notification
+from .models import Driver, Vehicle, Contract, Payment, Repair, Notification, RepairReceipt
 from .services import auto_expire_contracts, run_daily_tasks, mark_overdue_payments, generate_daily_payments
 
 
