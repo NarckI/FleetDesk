@@ -96,7 +96,8 @@
                     <small class="h1 fs-6">Recent Contracts</small>
                     {% if recent_contracts %}
                     {% for c in recent_contracts %}
-                    <div class="d-flex justify-content-between align-items-start mt-4">
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center">
                         <div>
                             <p class="mb-0 fw-medium">{{ c.driver.full_name }}</p>
                             <small class="mb-0 text-muted">{{ c.vehicle.plate_number }}</small>
@@ -110,6 +111,7 @@
                     {% else %}
                     <div>No contracts yet.</div>
                     {% endif %}
+                    <hr>
                 </div>
             </div>
             <div class="col-12 col-md-6 mb-3">
@@ -117,7 +119,8 @@
                     <small class="h1 fs-6">Recent Payments</small>
                     {% if recent_payments %}
                     {% for p in recent_payments %}
-                    <div class="d-flex justify-content-between align-items-start mt-4">
+                    <hr>
+                    <div class="d-flex justify-content-between align-items-center">
 
                         <div>
                             <p class="mb-0 fw-medium">Contract #{{ p.contract.id }}</p>
