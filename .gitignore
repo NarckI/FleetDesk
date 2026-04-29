@@ -3,5 +3,6 @@ fleetdesk/settings.py
 fleet/__pychache__/
 fleetdesk/__pycache__/
 __pycache__/
+*.pyc
 # Ignore database files
 media/repair_receipts/
