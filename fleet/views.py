@@ -135,10 +135,13 @@ def driver_delete(request, pk):
 @login_required
 def vehicles(request):
     q = request.GET.get('q','')
+    page_number = request.GET.get('page')
     qs = Vehicle.objects.all()
     if q:
         qs = qs.filter(Q(plate_number__icontains=q)|Q(brand__icontains=q)|Q(model__icontains=q))
-    ctx = {'vehicles': qs, 'q': q, 'unread_notifications': Notification.objects.filter(is_read=False).count()}
+    paginator = Paginator(qs, 10)
+    vehicles_page = paginator.get_page(page_number)
+    ctx = {'vehicles': vehicles_page, 'q': q, 'unread_notifications': Notification.objects.filter(is_read=False).count()}
     return render(request, 'vehicles.html', ctx)
 
 
