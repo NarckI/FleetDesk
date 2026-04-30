@@ -69,17 +69,12 @@
                 </table>
             </div>
         </div>
-    
 
         <!-- Pagination -->
         {% if drivers.has_other_pages %}
-        <div class="d-flex justify-content-between align-items-center mt-3">
-            <small class="text-muted">
-                Showing {{ drivers.start_index }}–{{ drivers.end_index }} of {{ drivers.paginator.count }} drivers
-            </small>
-            <nav>
-                <ul class="pagination mb-0">
-
+        <div class="mt-3">
+            <nav class="d-flex justify-content-center">
+                <ul class="pagination">
                     <li class="page-item {% if not drivers.has_previous %}disabled{% endif %}">
                         <a class="page-link" href="{% if drivers.has_previous %}?q={{ q }}&page={{ drivers.previous_page_number }}{% else %}#{% endif %}">‹</a>
                     </li>
@@ -102,6 +97,9 @@
 
                 </ul>
             </nav>
+            <small class="d-flex justify-content-center text-muted mt-1">
+                Showing {{ drivers.start_index }}–{{ drivers.end_index }} of {{ drivers.paginator.count }} drivers
+            </small>
         </div>
     </div>
     {% endif %}

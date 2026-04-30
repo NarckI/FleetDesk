@@ -83,13 +83,9 @@
         </div>
         <!-- Pagination -->
         {% if repairs.has_other_pages %}
-        <div class="d-flex justify-content-between align-items-center mt-3">
-            <small class="text-muted">
-                Showing {{ repairs.start_index }}–{{ repairs.end_index }} of {{ repairs.paginator.count }} repairs
-            </small>
-            <nav>
-                <ul class="pagination mb-0">
-
+        <div class="mt-3">
+            <nav class="d-flex justify-content-center">
+                <ul class="pagination">
                     <li class="page-item {% if not repairs.has_previous %}disabled{% endif %}">
                         <a class="page-link" href="{% if repairs.has_previous %}?q={{ q }}&page={{ repairs.previous_page_number }}{% else %}#{% endif %}">‹</a>
                     </li>
@@ -112,6 +108,9 @@
 
                 </ul>
             </nav>
+            <small class="d-flex justify-content-center text-muted mt-1">
+                Showing {{ repairs.start_index }}–{{ repairs.end_index }} of {{ repairs.paginator.count }} repairs
+            </small>
         </div>
         {% endif %}
         <!-- Edit/Fill Repair Details Modal -->
