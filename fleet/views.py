@@ -334,7 +334,7 @@ def payments(request):
             default=Value(0),
             output_field=IntegerField(),
         )
-    ).order_by('-due_date', 'status_order')
+    ).order_by('-due_date', 'status_order', 'balance')
     if status_filter:
         qs = qs.filter(status=status_filter)
     if q:
