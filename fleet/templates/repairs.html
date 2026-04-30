@@ -2,10 +2,12 @@
 {% block title %}Repairs — Fleet Desk{% endblock %}
 {% block content %}
 <main class="main-content">
-    <div>
-        <h1>Repairs</h1>
-        <p>Manage vehicle repair logs</p>
+
+    <div class="container-md my-4">
+        <h3 class="h3">Repairs</h3>
+        <p class="text-muted">Manage vehicle repair logs</p>
     </div>
+
     <!--Search-->
     <div class="box mt-4 p-3">
         <form method="get" class="d-flex gap-2">
@@ -13,113 +15,110 @@
                 <button class="input-group-text bg-white border-0" type="submit">
                     <img src="..\static\image\search.svg" alt="Search">
                 </button>
-                <input type="search" name="q" value="{{ q }}" class="form-control border-0"
-                       placeholder="Search vehicles…">
+                <input type="search" name="q" value="{{ q }}" class="form-control border-0" placeholder="Search vehicles…">
                 {% if q %}<a href="{% url 'repairs' %}" class="btn btn-outline-secondary">Clear</a>{% endif %}
             </div>
         </form>
-    </div>
-
-    <div>
-        <table>
-            <thead>
-            <tr>
-                <th>Plate Number</th>
-                <th>Driver</th>
-                <th>Brand</th>
-                <th>Model</th>
-                <th>Year</th>
-                <th>Type</th>
-                <th>Status</th>
-                <th>Date Completed</th>
-                <th>Created</th>
-                <th>Actions</th>
-            </tr>
-            </thead>
-            <tbody>
-            {% for r in repairs %}
-            <tr>
-                <td class="fw-semibold">{{ r.vehicle.plate_number }}</td>
-                <td>{{ r.driver.full_name|default:"—" }}</td>
-                <td>{{ r.vehicle.brand }}</td>
-                <td>{{ r.vehicle.model }}</td>
-                <td>{{ r.vehicle.year }}</td>
-                <td>{{ r.vehicle.get_vehicle_type_display }}</td>
-                <td><span class="status-badge badge-{{ r.status|slugify }}">{{ r.get_status_display }}</span></td>
-                <td>{{ r.date_finished|default:"—" }}</td>
-                <td>{{ r.created_at|date:"m/d/Y" }}</td>
-                <td>
-                    <div class="d-flex gap-1">
-                        <button class="btn-action success" title="View Details" onclick="openViewRepair({{ r.pk }})">
-                            <i class="bi bi-eye"></i>
-                        </button>
-                        {% if r.status != 'completed' %}
-                        <button class="btn-action primary" title="Edit / Fill Details"
-                                onclick="openRepairDetails({{ r.pk }})">
-                            <i class="bi bi-file-earmark-text"></i>
-                        </button>
-                        <button class="btn-action warning" title="Mark as Completed"
-                                onclick="confirmCompleteRepair({{ r.pk }}, '{{ r.vehicle.plate_number }}')">
-                            <i class="bi bi-check-circle"></i>
-                        </button>
-                        {% endif %}
-                        <button class="btn-action danger" title="Delete"
-                                onclick="confirmDeleteRepair({{ r.pk }}, '{{ r.vehicle.plate_number }}')">
-                            <i class="bi bi-trash"></i>
-                        </button>
-                    </div>
-                </td>
-            </tr>
-            {% empty %}
-            <tr>
-                <td colspan="10" class="text-center text-muted py-4">No repair logs. Use the wrench button on the
-                    Vehicles page to create one.
-                </td>
-            </tr>
-            {% endfor %}
-            </tbody>
-        </table>
-    </div>
-    
-    <!-- Pagination -->
-        {% if repairs.has_other_pages %}
-        <div class="d-flex justify-content-between align-items-center mt-3">
-            <small class="text-muted">
-                Showing {{ repairs.start_index }}–{{ repairs.end_index }} of {{ repairs.paginator.count }} repairs
-            </small>
-            <nav>
-                <ul class="pagination mb-0">
-
-                    <li class="page-item {% if not repairs.has_previous %}disabled{% endif %}">
-                        <a class="page-link" href="{% if repairs.has_previous %}?q={{ q }}&page={{ repairs.previous_page_number }}{% else %}#{% endif %}">‹</a>
-                    </li>
-
-                    {% for num in repairs.paginator.page_range %}
-                        {% if repairs.number == num %}
-                            <li class="page-item active">
-                                <span class="page-link">{{ num }}</span>
-                            </li>
-                        {% elif num > repairs.number|add:'-3' and num < repairs.number|add:'3' %}
-                            <li class="page-item">
-                                <a class="page-link" href="?q={{ q }}&page={{ num }}">{{ num }}</a>
-                            </li>
-                        {% endif %}
+        <div class="table-responsive">
+            <table class="table table-hover mt-3">
+                <thead>
+                    <tr>
+                        <th scope="col">Plate Number</th>
+                        <th scope="col">Driver</th>
+                        <th scope="col">Brand</th>
+                        <th scope="col">Model</th>
+                        <th scope="col">Year</th>
+                        <th scope="col">Type</th>
+                        <th scope="col">Status</th>
+                        <th scope="col">Date Completed</th>
+                        <th scope="col">Created</th>
+                        <th scope="col" class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody class="align-items-center">
+                    {% for r in repairs %}
+                    <tr>
+                        <td class="fw-semibold">{{ r.vehicle.plate_number }}</td>
+                        <td>{{ r.driver.full_name|default:"—" }}</td>
+                        <td>{{ r.vehicle.brand }}</td>
+                        <td>{{ r.vehicle.model }}</td>
+                        <td>{{ r.vehicle.year }}</td>
+                        <td>{{ r.vehicle.get_vehicle_type_display }}</td>
+                        <td><span class="status-badge badge-{{ r.status|slugify }}">{{ r.get_status_display }}</span></td>
+                        <td>{{ r.date_finished|default:"—" }}</td>
+                        <td>{{ r.created_at|date:"m/d/Y" }}</td>
+                        <td class="text-end">
+                            <div class="d-flex gap-1 justify-content-end">
+                                <button class="btn-action success" title="View Details" onclick="openViewRepair({{ r.pk }})">
+                                    <img src="..\static\vendor\bootstrap-icons\icons\eye.svg" alt="View Details">
+                                </button>
+                                {% if r.status != 'completed' %}
+                                <button class="btn-action" title="Edit / Fill Details"
+                                        onclick="openRepairDetails({{ r.pk }})">
+                                    <img src="..\static\image\file-earmark-text.svg" alt="File">
+                                </button>
+                                <button class="btn-action" title="Mark as Completed"
+                                        onclick="confirmCompleteRepair({{ r.pk }}, '{{ r.vehicle.plate_number }}')">
+                                    <img src="..\static\vendor\bootstrap-icons\icons\check-circle.svg" alt=Complete Repair  ">
+                                </button>
+                                {% endif %}
+                                <button class="btn-action danger" title="Delete"
+                                        onclick="confirmDeleteRepair({{ r.pk }}, '{{ r.vehicle.plate_number }}')">
+                                    <img src="..\static\vendor\bootstrap-icons\icons\trash.svg" alt="Delete">
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="10" class="text-center text-muted py-4">No repair logs. Use the wrench button on the
+                            Vehicles page to create one.
+                        </td>
+                    </tr>
                     {% endfor %}
-
-                    <li class="page-item {% if not repairs.has_next %}disabled{% endif %}">
-                        <a class="page-link" href="{% if repairs.has_next %}?q={{ q }}&page={{ repairs.next_page_number }}{% else %}#{% endif %}">›</a>
-                    </li>
-
-                </ul>
-            </nav>
+                </tbody>
+            </table>
         </div>
-        {% endif %}
+    </div>
+    <!-- Pagination -->
+    {% if repairs.has_other_pages %}
+    <div class="d-flex justify-content-between align-items-center mt-3">
+        <small class="text-muted">
+            Showing {{ repairs.start_index }}–{{ repairs.end_index }} of {{ repairs.paginator.count }} repairs
+        </small>
+        <nav>
+            <ul class="pagination mb-0">
+
+                <li class="page-item {% if not repairs.has_previous %}disabled{% endif %}">
+                    <a class="page-link" href="{% if repairs.has_previous %}?q={{ q }}&page={{ repairs.previous_page_number }}{% else %}#{% endif %}">‹</a>
+                </li>
+
+                {% for num in repairs.paginator.page_range %}
+                    {% if repairs.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                    {% elif num > repairs.number|add:'-3' and num < repairs.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?q={{ q }}&page={{ num }}">{{ num }}</a>
+                        </li>
+                    {% endif %}
+                {% endfor %}
+
+                <li class="page-item {% if not repairs.has_next %}disabled{% endif %}">
+                    <a class="page-link" href="{% if repairs.has_next %}?q={{ q }}&page={{ repairs.next_page_number }}{% else %}#{% endif %}">›</a>
+                </li>
+
+            </ul>
+        </nav>
+    </div>
+    {% endif %}
     <!-- Edit/Fill Repair Details Modal -->
     <div class="modal fade" id="repairDetailsModal" tabindex="-1">
-        <div class="modal-dialog modal-xl modal-dialog-scrollable">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
             <div class="modal-content">
-                <div>
-                    <h5 class="modal-title fw-bold"><i class="bi bi-file-earmark-text me-2"></i>Edit Repair Details</h5>
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold">Edit Repair Details</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <form method="post" id="repairDetailsForm" enctype="multipart/form-data">
@@ -128,52 +127,52 @@
                         <!-- Vehicle Info (readonly) -->
                         <div class="row g-3 mb-3 pb-3 border-bottom">
                             <div class="col-md-3">
-                                <label class="form-label text-muted small">Plate Number</label>
-                                <div class="fw-semibold" id="rdPlate"></div>
+                                <label class="fw-semibold form-label small">Plate Number</label>
+                                <div class="text-muted" id="rdPlate"></div>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label text-muted small">Vehicle</label>
-                                <div id="rdVehicle"></div>
+                                <label class="form-label fw-semibold small">Vehicle</label>
+                                <div class="text-muted" id="rdVehicle"></div>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label text-muted small">Driver</label>
-                                <div id="rdDriver"></div>
+                                <label class="form-label fw-semibold small">Driver</label>
+                                <div class="text-muted" id="rdDriver"></div>
                             </div>
                             <div class="col-md-3">
-                                <label class="form-label text-muted small">Type</label>
-                                <div id="rdType"></div>
+                                <label class="form-label fw-semibold small">Type</label>
+                                <div class="text-muted" id="rdType"></div>
                             </div>
                         </div>
 
                         <!-- Repair Details -->
-                        <div class="row g-3 mb-3">
+                        <div class="row g-3 mb-4">
                             <div class="col-md-6">
-                                <label class="form-label">Date Finished</label>
+                                <label class="fw-semibold form-label">Date Finished</label>
                                 <input type="date" name="date_finished" id="rdDateFinished" class="form-control">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Repair Shop Name</label>
+                                <label class="fw-semibold form-label">Repair Shop Name</label>
                                 <input type="text" name="repair_shop_name" id="rdShopName" class="form-control">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Total Cost (₱)</label>
+                                <label class="fw-semibold form-label">Total Cost (₱)</label>
                                 <input type="number" name="total_cost" id="rdTotalCost" class="form-control" min="0"
-                                       step="0.01">
+                                        step="0.01">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Receipts (Images / PDFs)</label>
+                                <label class="fw-semibold form-label">Receipts (Images / PDFs)</label>
                                 <input type="file" name="receipts" class="form-control" multiple accept="image/*,.pdf">
                                 <div class="form-text">You can select multiple files.</div>
                             </div>
                             <div class="col-12">
-                                <label class="form-label">Repair Details</label>
+                                <label class="fw-semibold form-label">Repair Details</label>
                                 <textarea name="repair_details" id="rdDetails" class="form-control" rows="3"></textarea>
                             </div>
                         </div>
 
                         <!-- Repair Checklist -->
                         <div class="border rounded p-3" style="max-height:400px;overflow-y:auto;">
-                            <div class="fw-semibold mb-2">Repair Checklist</div>
+                            <div class="fw-semibold mb-4">Repair Checklist</div>
                             {% for group_name, items in checklist_groups %}
                             <div class="checklist-section">
                                 <span class="checklist-group-title">{{ group_name }}</span>
@@ -201,7 +200,7 @@
     </div>
     <!-- View Repair Modal -->
     <div class="modal fade" id="viewRepairModal" tabindex="-1">
-        <div class="modal-dialog modal-lg modal-dialog-scrollable">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title fw-bold"><i class="bi bi-eye me-2"></i>View Repair Details</h5>
@@ -210,49 +209,49 @@
                 <div class="modal-body">
                     <div class="row g-3 mb-3 pb-3 border-bottom">
                         <div class="col-md-6">
-                            <div class="text-muted small">Plate Number</div>
-                            <div class="fw-semibold" id="vrdPlate"></div>
+                            <div class="fw-semibold small">Plate Number</div>
+                            <div class="text-muted" id="vrdPlate"></div>
                         </div>
                         <div class="col-md-6">
-                            <div class="text-muted small">Vehicle</div>
-                            <div id="vrdVehicle"></div>
+                            <div class="fw-semibold small">Vehicle</div>
+                            <div class="text-muted" id="vrdVehicle"></div>
                         </div>
                         <div class="col-md-6">
-                            <div class="text-muted small">Driver</div>
-                            <div id="vrdDriver"></div>
+                            <div class="fw-semibold small">Driver</div>
+                            <div class="text-muted" id="vrdDriver"></div>
                         </div>
                         <div class="col-md-6">
-                            <div class="text-muted small">Type</div>
-                            <div id="vrdType"></div>
+                            <div class="fw-semibold small">Type</div>
+                            <div class="text-muted" id="vrdType"></div>
                         </div>
                         <div class="col-md-6">
-                            <div class="text-muted small">Date Finished</div>
-                            <div id="vrdDateFinished"></div>
+                            <div class="fw-semibold small">Date Finished</div>
+                            <div class="text-muted" id="vrdDateFinished"></div>
                         </div>
                         <div class="col-md-6">
-                            <div class="text-muted small">Repair Shop</div>
-                            <div id="vrdShop"></div>
+                            <div class="fw-semibold small">Repair Shop</div>
+                            <div class="text-muted" id="vrdShop"></div>
                         </div>
                         <div class="col-md-6">
-                            <div class="text-muted small">Total Cost</div>
-                            <div id="vrdCost"></div>
+                            <div class="fw-semibold small">Total Cost</div>
+                            <div class="text-muted" id="vrdCost"></div>
                         </div>
                         <div class="col-md-6">
-                            <div class="text-muted small">Status</div>
-                            <div id="vrdStatus"></div>
+                            <div class="fw-semibold small">Status</div>
+                            <div class="text-muted" id="vrdStatus"></div>
                         </div>
                     </div>
                     <div class="mb-3">
-                        <div class="text-muted small mb-1">Repair Details</div>
-                        <div id="vrdDetails"></div>
+                        <div class="fw-semibold small mb-1">Repair Details</div>
+                        <div class="text-muted" id="vrdDetails"></div>
                     </div>
                     <div class="mb-3">
-                        <div class="text-muted small mb-1">Completed Repairs</div>
-                        <ul class="mb-0 ps-3" id="vrdChecklist"></ul>
+                        <div class="fw-semibold small mb-1">Completed Repairs</div>
+                        <ul class="text-muted mb-0 ps-3" id="vrdChecklist"></ul>
                     </div>
                     <div>
-                        <div class="text-muted small mb-2">Receipts</div>
-                        <div class="d-flex flex-wrap" id="vrdReceipts"></div>
+                        <div class="fw-semibold small mb-2">Receipts</div>
+                        <div class="text-muted d-flex flex-wrap" id="vrdReceipts"></div>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -263,11 +262,10 @@
     </div>
     <!-- Complete Repair Confirm -->
     <div class="modal fade" id="completeRepairModal" tabindex="-1">
-        <div class="modal-dialog modal-sm">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title fw-bold text-success"><i class="bi bi-check-circle me-2"></i>Mark as
-                        Completed</h5>
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold text-success">Mark as Completed</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body">
@@ -289,9 +287,9 @@
 
     <!-- Delete Repair Confirm -->
     <div class="modal fade" id="deleteRepairModal" tabindex="-1">
-        <div class="modal-dialog modal-sm">
+        <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
-                <div class="modal-header border-0">
+                <div class="modal-header">
                     <h5 class="modal-title fw-bold text-danger"><i class="bi bi-exclamation-triangle me-2"></i>Delete
                         Repair</h5>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
@@ -307,6 +305,5 @@
             </div>
         </div>
     </div>
-
 </main>
 {% endblock %}
