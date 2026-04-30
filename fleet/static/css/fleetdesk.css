@@ -207,6 +207,10 @@ body{
     filter: invert(25%) sepia(75%) saturate(2061%) hue-rotate(102deg) brightness(99%) contrast(101%);
 }
 
+#checkReadNotif{
+    filter: invert(85%) sepia(100%) saturate(1%) hue-rotate(73deg) brightness(104%) contrast(101%);
+}
+
 .main-content .contracts-payments-divider{
     border-color: gray;
     margin-top: 8px;
