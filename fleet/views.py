@@ -328,7 +328,13 @@ def payments(request):
     status_filter = request.GET.get('status','')
     q = request.GET.get('q','')
     page_number = request.GET.get('page')
-    qs = Payment.objects.select_related('contract__driver','contract__vehicle').order_by('-due_date', '-created_at')
+    qs = Payment.objects.select_related('contract__driver','contract__vehicle').annotate(
+        status_order=Case(
+            When(status='paid', then=Value(1)),
+            default=Value(0),
+            output_field=IntegerField(),
+        )
+    ).order_by('-due_date', 'status_order')
     if status_filter:
         qs = qs.filter(status=status_filter)
     if q:
