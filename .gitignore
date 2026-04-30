@@ -12,3 +12,9 @@ fleet/staticfiles/
 .claude/
 fleetdesk/settings.py
 fleetdesk/
+
+*.sqlite3
+*.sqlite
+*.db
+*.db-shm
+*.db-wal
