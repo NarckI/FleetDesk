@@ -74,7 +74,7 @@ def generate_notifications(today=None):
             created_at__date=today,
             defaults={
                 'title': 'Overdue Payment',
-                'message': f"Payment of ₱{payment.amount:,.2f} is {days_over} days overdue (Due: {payment.due_date}).",
+                'message': f"Payment of ₱{payment.balance:,.2f} is {days_over} day/s overdue (Due: {payment.due_date}).",
                 'severity': 'high', 'related_payment': payment,
                 'related_contract': payment.contract,
             }
