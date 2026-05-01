@@ -110,6 +110,7 @@
                                             <form method="post" action="{% url 'payment_mark_paid' p.pk %}"
                                                   style="display:inline;">
                                                 {% csrf_token %}
+                                                <input type="hidden" name="page" value="{{ payments.number }}">
                                                 <button type="submit" class="d-flex gap-2 btn btn-sm btn-dark"
                                                         title="Mark as Paid">
                                                     <img id="mark-paid"
@@ -193,6 +194,7 @@
                     </div>
                     <form method="post" id="partialPayForm">
                         {% csrf_token %}
+                        <input type="hidden" name="page" value="{{ payments.number }}">
                         <div class="modal-body">
                             <div>Payment Balance: <span id="partialBalance"></span></div>
                             <div class="mt-3">
@@ -224,6 +226,7 @@
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <form method="post" id="deletePaymentForm" style="display:inline;">
                             {% csrf_token %}
+                            <input type="hidden" name="page" value="{{ payments.number }}">
                             <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
                     </div>

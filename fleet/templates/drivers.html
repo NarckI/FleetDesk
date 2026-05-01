@@ -135,6 +135,7 @@
                     </div>
                     <form method="post" action="{% url 'driver_add' %}">
                         {% csrf_token %}
+                        <input type="hidden" name="page" value="{{ drivers.number }}">
                         <div class="modal-body">
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -195,6 +196,7 @@
             <div class="modal-dialog modal-dialog-centered modal-lg">
                 <form method="post" id="editDriverForm" class="modal-content">
                     {% csrf_token %}
+                    <input type="hidden" name="page" value="{{ drivers.number }}">
                     <input type="hidden" id="editDriverPk">
                     <div class="modal-header">
                         <h5 class="modal-title fw-bold">Edit Driver</h5>
@@ -259,6 +261,7 @@
             <div class="modal-dialog modal-dialog-centered">
                 <form method="post" id="deleteDriverForm" class="modal-content">
                     {% csrf_token %}
+                    <input type="hidden" name="page" value="{{ drivers.number }}">
                     <div class="modal-header">
                         <h5 class="modal-title fw-bold text-danger">Delete Driver</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>

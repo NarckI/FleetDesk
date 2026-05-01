@@ -7,6 +7,7 @@ from django.contrib import messages
 from django.db.models import Q, Sum, Case, When, Value, IntegerField
 from decimal import Decimal
 from datetime import date
+from django.urls import reverse
 from django.core.paginator import Paginator
 from .models import Driver, Vehicle, Contract, Payment, Repair, Notification, RepairReceipt
 from .services import auto_expire_contracts, run_daily_tasks, mark_overdue_payments, generate_daily_payments
@@ -80,6 +81,7 @@ def drivers(request):
 @login_required
 @require_POST
 def driver_add(request):
+    page = request.POST.get('page', 1)
     try:
         Driver.objects.create(
             first_name=request.POST['first_name'],
@@ -95,13 +97,14 @@ def driver_add(request):
         messages.success(request, 'Driver added successfully.')
     except Exception as e:
         messages.error(request, f'Error: {e}')
-    return redirect('drivers')
+    return redirect(f"{reverse('drivers')}?page={page}")
 
 
 @login_required
 @require_POST
 def driver_edit(request, pk):
     driver = get_object_or_404(Driver, pk=pk)
+    page = request.POST.get('page', 1)
     try:
         driver.first_name = request.POST['first_name']
         driver.last_name = request.POST['last_name']
@@ -116,19 +119,20 @@ def driver_edit(request, pk):
         messages.success(request, 'Driver updated successfully.')
     except Exception as e:
         messages.error(request, f'Error: {e}')
-    return redirect('drivers')
+    return redirect(f"{reverse('drivers')}?page={page}")
 
 
 @login_required
 @require_POST
 def driver_delete(request, pk):
     driver = get_object_or_404(Driver, pk=pk)
+    page = request.POST.get('page', 1)
     try:
         driver.delete()
         messages.success(request, 'Driver deleted.')
     except Exception as e:
         messages.error(request, f'Cannot delete: {e}')
-    return redirect('drivers')
+    return redirect(f"{reverse('drivers')}?page={page}")
 
 # ── Vehicles ─────────────────────────────────────────────────────────────────
 
@@ -148,6 +152,7 @@ def vehicles(request):
 @login_required
 @require_POST
 def vehicle_add(request):
+    page = request.POST.get('page', 1)
     try:
         Vehicle.objects.create(
             plate_number=request.POST['plate_number'],
@@ -166,13 +171,14 @@ def vehicle_add(request):
         messages.success(request, 'Vehicle added successfully.')
     except Exception as e:
         messages.error(request, f'Error: {e}')
-    return redirect('vehicles')
+    return redirect(f"{reverse('vehicles')}?page={page}")
 
 
 @login_required
 @require_POST
 def vehicle_edit(request, pk):
     vehicle = get_object_or_404(Vehicle, pk=pk)
+    page = request.POST.get('page', 1)
     try:
         vehicle.plate_number = request.POST['plate_number']
         vehicle.vehicle_registration = request.POST.get('vehicle_registration','')
@@ -190,19 +196,20 @@ def vehicle_edit(request, pk):
         messages.success(request, 'Vehicle updated successfully.')
     except Exception as e:
         messages.error(request, f'Error: {e}')
-    return redirect('vehicles')
+    return redirect(f"{reverse('vehicles')}?page={page}")
 
 
 @login_required
 @require_POST
 def vehicle_delete(request, pk):
     vehicle = get_object_or_404(Vehicle, pk=pk)
+    page = request.POST.get('page', 1)
     try:
         vehicle.delete()
         messages.success(request, 'Vehicle deleted.')
     except Exception as e:
         messages.error(request, f'Cannot delete: {e}')
-    return redirect('vehicles')
+    return redirect(f"{reverse('vehicles')}?page={page}")
 
 
 @login_required
@@ -258,6 +265,7 @@ def contracts(request):
 @login_required
 @require_POST
 def contract_add(request):
+    page = request.POST.get('page', 1)
     try:
         start_date = date.fromisoformat(request.POST['start_date'])
         contract = Contract.objects.create(
@@ -279,12 +287,13 @@ def contract_add(request):
         messages.success(request, 'Contract added successfully.')
     except Exception as e:
         messages.error(request, f'Error: {e}')
-    return redirect('contracts')
+    return redirect(f"{reverse('contracts')}?page={page}")
 
 
 @login_required
 @require_POST
 def contract_edit(request, pk):
+    page = request.POST.get('page', 1)
     contract = get_object_or_404(Contract, pk=pk)
     if contract.status == 'terminated':
         messages.error(request, 'Terminated contracts cannot be edited.')
@@ -300,20 +309,21 @@ def contract_edit(request, pk):
         messages.success(request, 'Contract updated.')
     except Exception as e:
         messages.error(request, f'Error: {e}')
-    return redirect('contracts')
+    return redirect(f"{reverse('contracts')}?page={page}")
 
 
 @login_required
 @require_POST
 def contract_delete(request, pk):
     contract = get_object_or_404(Contract, pk=pk)
+    page = request.POST.get('page', 1)
     try:
         contract.status = 'terminated'
         contract.save(update_fields=['status'])
         messages.success(request, 'Contract terminated. Payment history preserved.')
     except Exception as e:
         messages.error(request, f'Cannot delete: {e}')
-    return redirect('contracts')
+    return redirect(f"{reverse('contracts')}?page={page}")
 
 
 
@@ -363,19 +373,21 @@ def payments(request):
 @require_POST
 def payment_mark_paid(request, pk):
     payment = get_object_or_404(Payment, pk=pk)
+    page = request.POST.get('page', 1)
     payment.amount_paid = payment.amount
     payment.balance = Decimal('0')
     payment.paid_date = date.today()
     payment.status = 'paid'
     payment.save()
     messages.success(request, 'Payment marked as paid.')
-    return redirect('payments')
+    return redirect(f"{reverse('payments')}?page={page}")
 
 
 @login_required
 @require_POST
 def payment_partial(request, pk):
     payment = get_object_or_404(Payment, pk=pk)
+    page = request.POST.get('page', 1)
     try:
         amount = Decimal(request.POST['amount'])
         if amount <= 0:
@@ -390,19 +402,20 @@ def payment_partial(request, pk):
         messages.success(request, f'Partial payment of ₱{amount:,.2f} recorded.')
     except Exception as e:
         messages.error(request, f'Error: {e}')
-    return redirect('payments')
+    return redirect(f"{reverse('payments')}?page={page}")
 
 
 @login_required
 @require_POST
 def payment_delete(request, pk):
     payment = get_object_or_404(Payment, pk=pk)
+    page = request.POST.get('page', 1)
     try:
         payment.delete()
         messages.success(request, 'Payment deleted.')
     except Exception as e:
         messages.error(request, f'Cannot delete payment: {e}')
-    return redirect('payments')
+    return redirect(f"{reverse('payments')}?page={page}")
 
 # ── Repairs ───────────────────────────────────────────────────────────────────
 
@@ -494,6 +507,7 @@ def repairs(request):
 @require_POST
 def repair_save_details(request, pk):
     repair = get_object_or_404(Repair, pk=pk)
+    page = request.POST.get('page', 1)
     try:
         repair.date_finished = request.POST.get('date_finished') or None
         repair.repair_shop_name = request.POST.get('repair_shop_name','')
@@ -519,13 +533,14 @@ def repair_save_details(request, pk):
         messages.success(request, 'Repair details saved.')
     except Exception as e:
         messages.error(request, f'Error: {e}')
-    return redirect('repairs')
+    return redirect(f"{reverse('repairs')}?page={page}")
 
 
 @login_required
 @require_POST
 def repair_mark_completed(request, pk):
     repair = get_object_or_404(Repair, pk=pk)
+    page = request.POST.get('page', 1)
     repair.status = 'completed'
     if not repair.date_finished:
         repair.date_finished = date.today()
@@ -537,7 +552,7 @@ def repair_mark_completed(request, pk):
     vehicle.last_maintenance = repair.date_finished
     vehicle.save()
     messages.success(request, f'Repair for {vehicle.plate_number} marked as completed.')
-    return redirect('repairs')
+    return redirect(f"{reverse('repairs')}?page={page}")
 
 
 @login_required
@@ -545,12 +560,13 @@ def repair_mark_completed(request, pk):
 def repair_delete(request, pk):
     repair = get_object_or_404(Repair, pk=pk)
     vehicle = repair.vehicle
+    page = request.POST.get('page', 1)
     has_active = vehicle.contracts.filter(status='active').exists()
     vehicle.status = 'in-use' if has_active else 'available'
     vehicle.save()
     repair.delete()
     messages.success(request, 'Repair log deleted.')
-    return redirect('repairs')
+    return redirect(f"{reverse('repairs')}?page={page}")
 
 
 def repair_detail_json(request, pk):

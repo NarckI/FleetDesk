@@ -137,6 +137,7 @@
                     </div>
                     <form action="{% url 'contract_add' %}" method="post">
                         {% csrf_token %}
+                        <input type="hidden" name="page" value="{{ contracts.number }}">
                         <div class="modal-body">
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -193,6 +194,7 @@
                     </div>
                     <form method="post" id="editContractForm">
                         {% csrf_token %}
+                        <input type="hidden" name="page" value="{{ contracts.number }}">
                         <div class="modal-body">
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -257,6 +259,7 @@
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <form method="post" id="terminateContractForm" style="display:inline;">
                             {% csrf_token %}
+                            <input type="hidden" name="page" value="{{ contracts.number }}">
                             <button type="submit" class="btn btn-danger">Terminate</button>
                         </form>
                     </div>

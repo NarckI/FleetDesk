@@ -141,6 +141,7 @@
                     </div>
                     <form method="post" action="{% url 'vehicle_add' %}">
                         {% csrf_token %}
+                        <input type="hidden" name="page" value="{{ vehicles.number }}">
                         <div class="modal-body">
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -222,6 +223,7 @@
                     </div>
                     <form method="post" id="editVehicleForm">
                         {% csrf_token %}
+                        <input type="hidden" name="page" value="{{ vehicles.number }}">
                         <div class="modal-body">
                             <div class="row g-3">
                                 <div class="col-md-6">
@@ -310,6 +312,7 @@
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
                         <form method="post" id="deleteVehicleForm" style="display:inline;">
                             {% csrf_token %}
+                            <input type="hidden" name="page" value="{{ vehicles.number }}">
                             <button type="submit" class="btn btn-danger">Delete</button>
                         </form>
                     </div>
