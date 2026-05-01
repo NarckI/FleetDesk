@@ -88,9 +88,9 @@
                         <ul class="pagination">
 
                             <!-- First Page -->
-                            <li class="page-item {% if not drivers.has_previous %}disabled{% endif %}">
+                            <li class="page-item {% if not vehicles.has_previous %}disabled{% endif %}">
                                 <a class="page-link"
-                                   href="{% if drivers.has_previous %}?q={{ q }}&page=1{% else %}#{% endif %}">«</a>
+                                   href="{% if vehicles.has_previous %}?q={{ q }}&page=1{% else %}#{% endif %}">«</a>
                             </li>
 
 {#                            <!--Previous Page-->#}
@@ -118,9 +118,9 @@
 {#                            </li>#}
 
                             <!-- Last Page -->
-                            <li class="page-item {% if not drivers.has_next %}disabled{% endif %}">
-                                <a class="page-link" href="{% if drivers.has_next %}?q={{ q }}&page=
-                                    {{ drivers.paginator.num_pages }}{% else %}#{% endif %}">»</a>
+                            <li class="page-item {% if not vehicles.has_next %}disabled{% endif %}">
+                                <a class="page-link" href="{% if vehicles.has_next %}?q={{ q }}&page=
+                                    {{ vehicles.paginator.num_pages }}{% else %}#{% endif %}">»</a>
                             </li>
                         </ul>
                     </nav>

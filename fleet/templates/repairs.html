@@ -94,9 +94,9 @@
                     <nav class="d-flex justify-content-center">
                         <ul class="pagination">
                             <!-- First Page -->
-                            <li class="page-item {% if not drivers.has_previous %}disabled{% endif %}">
+                            <li class="page-item {% if not repairs.has_previous %}disabled{% endif %}">
                                 <a class="page-link"
-                                   href="{% if drivers.has_previous %}?q={{ q }}&page=1{% else %}#{% endif %}">«</a>
+                                   href="{% if repairs.has_previous %}?q={{ q }}&page=1{% else %}#{% endif %}">«</a>
                             </li>
 {#                            <!-- Previous Page -->#}
 {#                            <li class="page-item {% if not repairs.has_previous %}disabled{% endif %}">#}
@@ -124,10 +124,10 @@
 {#                            </li>#}
 
                             <!-- Last Page -->
-                            <li class="page-item {% if not drivers.has_previous %}disabled{% endif %}">
+                            <li class="page-item {% if not repairs.has_previous %}disabled{% endif %}">
                                 <a class="page-link"
-                                   href="{% if drivers.has_previous %}?q={{ q }}&page=
-                                       {{ drivers.paginator.num_pages }}{% else %}#{% endif %}">«</a>
+                                   href="{% if repairs.has_previous %}?q={{ q }}&page=
+                                       {{ repairs.paginator.num_pages }}{% else %}#{% endif %}">«</a>
                             </li>
 
                         </ul>
