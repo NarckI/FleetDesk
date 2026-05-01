@@ -81,7 +81,7 @@ class Contract(models.Model):
             self.vehicle.save(update_fields=['status'])
         elif self.status in ('expired','terminated'):
             still_active = Contract.objects.filter(vehicle=self.vehicle, status='active').exclude(pk=self.pk).exists()
-            if not still_active:
+            if not still_active and self.vehicle.status != 'maintenance':
                 self.vehicle.status = 'available'
                 self.vehicle.save(update_fields=['status'])
 

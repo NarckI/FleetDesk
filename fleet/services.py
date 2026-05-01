@@ -22,7 +22,11 @@ def mark_overdue_payments(today=None):
 
 def generate_daily_payments(today=None):
     today = today or date.today()
-    active = Contract.objects.filter(status='active', start_date__lte=today, end_date__gte=today)
+    active = Contract.objects.filter(
+        status='active',
+        start_date__lte=today,
+        end_date__gte=today
+    ).exclude(vehicle__status='maintenance')
     for contract in active:
         Payment.objects.get_or_create(
             contract=contract, due_date=today,
