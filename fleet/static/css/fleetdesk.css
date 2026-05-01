@@ -192,7 +192,7 @@ body{
 }
 
 #currency-pending{
-    filter: invert(87%) sepia(92%) saturate(666%) hue-rotate(354deg) brightness(104%) contrast(107%);
+    filter: invert(47%) sepia(83%) saturate(1733%) hue-rotate(23deg) brightness(102%) contrast(98%);
 }
 
 #currency-overdue{
@@ -209,6 +209,38 @@ body{
 
 #checkReadNotif{
     filter: invert(85%) sepia(100%) saturate(1%) hue-rotate(73deg) brightness(104%) contrast(101%);
+}
+
+#payment-success-bg{
+    background-color: rgb(196, 255, 196);
+}
+
+#payment-pending-bg{
+    background-color: rgb(253, 255, 208);
+}
+
+#payment-overdue-bg{
+    background-color: rgb(255, 208, 208);
+}
+
+#notif-cc-ic{
+    filter: invert(24%) sepia(84%) saturate(7487%) hue-rotate(356deg) brightness(96%) contrast(115%);
+}
+
+#notif-calendar-ic{
+    filter: invert(47%) sepia(83%) saturate(1733%) hue-rotate(23deg) brightness(102%) contrast(98%);
+}
+
+#notif-bell-ic{
+    filter: invert(9%) sepia(97%) saturate(6056%) hue-rotate(246deg) brightness(102%) contrast(149%);
+}
+
+#notif-cc-bg{
+    background-color: rgb(255, 208, 208);
+}
+
+#notif-calendar-bg{
+    background-color: rgb(253, 255, 208);
 }
 
 .main-content .contracts-payments-divider{
@@ -272,6 +304,24 @@ td {
 .btn-action:hover{
     background-color: #d9d9d9;
     border-radius: 10px;
+}
+
+.notif-btn-box{
+    background-color: #ECECF0;
+    display: inline-flex;
+    padding: 6px;
+    border-radius: 999px;
+}
+
+.notif-btn-box .btn{
+    border-radius: 999px;
+    background-color: transparent;
+    color: black;
+}
+
+.notif-btn-box .btn.active{
+    background-color: white;
+    border: none;
 }
 
 .badge-status {

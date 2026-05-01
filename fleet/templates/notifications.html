@@ -22,53 +22,59 @@
         </div>
 
         <!---SUmmary-->
-        <div class="row">
+        <div class="row mb-3">
             <div class="col-12 col-sm-6 col-lg-4">
-                <div class="p-4 box">
+                <div class="px-4 pb-4 pt-3 box">
                     <div class="d-flex justify-content-between align-items-center">
-                        <div class="text-muted small">Payment Alerts</div>
+                        <div class="text-muted">Payment Alerts</div>
+                        <span class="main-icons" id="notif-cc-bg">
+                            <img id="notif-cc-ic" src="..\static\vendor\bootstrap-icons\icons\credit-card.svg" alt="Credit Card">
+                        </span>
                     </div>
-                    <div class="fs-4 fw-bold">{{ payment_count }}</div>
+                    <h4 class="my-0">{{ payment_count }}</h4>
                     <div class="text-muted small">Overdue payments</div>
                 </div>
             </div>
             <div class="col-12 col-sm-6 col-lg-4">
-                <div class="p-4 box">
+                <div class="px-4 pb-4 pt-3 box">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="text-muted small">Expiration Alerts</div>
+                        <span class="main-icons" id="notif-calendar-bg">
+                            <img id="notif-calendar-ic" src="..\static\vendor\bootstrap-icons\icons\calendar4.svg" alt="Calendar">
+                        </span>
                     </div>
-                    <div class="fs-4 fw-bold">{{ expiry_count }}</div>
+                    <h4 class="my-0">{{ expiry_count }}</h4>
                     <div class="text-muted small">Documents expiring soon</div>
                 </div>
             </div>
             <div class="col-12 col-sm-6 col-lg-4">
-                <div class="p-4 box">
+                <div class="px-4 pb-4 pt-3 box">
                     <div class="d-flex justify-content-between align-items-center">
                         <div class="text-muted small">Total Alerts</div>
-                        
+                        <span class="main-icons">
+                            <img id="notif-bell-ic" src="..\static\vendor\bootstrap-icons\icons\bell.svg" alt="Bell">
+                        </span>
                     </div>
-                    <div class="fs-4 fw-bold">{{ total_count }}</div>
+                    <h4 class="my-0">{{ total_count }}</h4>
                     <div class="text-muted small">Active notifications</div>
                 </div>
             </div>
         </div>
 
         <!-- Filter tabs -->
-        <div class="mb-3 d-flex gap-2">
-            <a href="{% url 'notifications' %}"
-            class="btn btn-sm {% if not notif_type %}btn-primary{% else %}btn-outline-secondary{% endif %}">
-                All Alerts ({{ total_count }})
-            </a>
-            <a href="?type=payment"
-            class="btn btn-sm {% if notif_type == 'payment' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
-                Payment Alerts ({{ payment_count }})
-            </a>
-            <a href="?type=expiry"
-            class="btn btn-sm {% if notif_type == 'expiry' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
-                Expiration Alerts ({{ expiry_count }})
-            </a>
+        <div class="notif-btn-box mb-4">
+            <div class="gap-2">
+                <a href="{% url 'notifications' %}" class="btn btn-sm fw-semibold {% if request.resolver_match.url_name == 'notifications' %}active{% endif %}">
+                    All Alerts ({{ total_count }})
+                </a>
+                <a href="?type=payment" class="btn btn-sm fw-semibold {% if request.resolver_match.url_name == 'payment' %}active{% endif %}">
+                    Payment Alerts ({{ payment_count }})
+                </a>
+                <a href="?type=expiry" class="btn btn-sm fw-semibold {% if request.resolver_match.url_name == 'expiry' %}active{% endif %}">
+                    Expiration Alerts ({{ expiry_count }})
+                </a>
+            </div>
         </div>
-
         <!-- Notification List -->
         {% for n in notifications %}
         <div class="notif-item notif-{{ n.severity }} {% if n.is_read %}read{% endif %} mb-2">
@@ -102,11 +108,13 @@
             </div>
         </div>
         {% empty %}
-        <div class="text-center text-muted py-5">
-            <i class="bi bi-bell-slash fs-1 d-block mb-2"></i>
-            No notifications.
-        </div>
-        {% endfor %}
+            <div class="box container-xl">
+                <div class="d-flex py-5 justify-content-center flex-column align-items-center">
+                    <img src="..\static\vendor\bootstrap-icons\icons\bell-slash.svg" alt="Warning" style="width: 50px; height: 50px;">
+                    <div class="text-muted mt-4">No notifications.</div>
+                </div>
+            </div>
+        {% endfor %}  
     </div>
 </main>
 {% endblock %}

@@ -8,37 +8,40 @@
                 <p class="text-muted">Track and manage payments</p>
             </div>
 
-            <div class="row">
+            <div class="row mb-3">
                 <div class="col-12 col-sm-6 col-lg-4">
-                    <div class="p-4 box">
+                    <div class="px-4 pb-4 pt-3 box">
                         <div class="d-flex align-items-center justify-content-between">
-                            <span class="h5 text-muted mb-0">Total Paid</span>
-                            <img id="currency-success" src="..\static\image\currency-dollar.svg" alt="Money"
-                                 style="width:30px;height:30px;">
+                            <div class="h5 text-muted mb-0">Total Paid</div>
+                            <span class="main-icons" id="payment-success-bg">
+                                <img id="currency-success" src="..\static\image\currency-dollar.svg" alt="Money">
+                            </span>
                         </div>
-                        <div class="h4 fw-semibold mt-2 mb-0">₱{{ total_paid|floatformat:0 }}</div>
+                        <h4 class="mb-0">₱{{ total_paid|floatformat:0 }}</h4>
                         <div class="text-muted small">{{ payment_count|default:0 }} payment(s)</div>
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 col-lg-4">
-                    <div class="p-4 box">
+                    <div class="px-4 pb-4 pt-3 box">
                         <div class="d-flex align-items-center justify-content-between">
-                            <span class="h5 text-muted mb-0">Pending Collection</span>
-                            <img id="currency-pending" src="..\static\image\currency-dollar.svg" alt="Money"
-                                 style="width:30px;height:30px;">
+                            <div class="h5 text-muted mb-0">Pending Collection</div>
+                            <span class="main-icons" id="payment-pending-bg">
+                                <img id="currency-pending" src="..\static\image\currency-dollar.svg" alt="Money">
+                            </span>
                         </div>
-                        <div class="h4 fw-semibold mt-2 mb-0">₱{{ total_pending|floatformat:0 }}</div>
+                        <h4 class="mb-0">₱{{ total_pending|floatformat:0 }}</h4>
                         <div class="text-muted small">{{ pending_count }} payments</div>
                     </div>
                 </div>
                 <div class="col-12 col-sm-6 col-lg-4">
                     <div class="p-4 box">
                         <div class="d-flex align-items-center justify-content-between">
-                            <span class="h5 text-muted mb-0">Overdue</span>
-                            <img id="currency-overdue" src="..\static\image\currency-dollar.svg" alt="Money"
-                                 style="width:30px;height:30px;">
+                            <div class="h5 text-muted mb-0">Overdue</div>
+                                <span class="main-icons" id="payment-overdue-bg">
+                                    <img id="currency-overdue" src="..\static\image\currency-dollar.svg" alt="Money">
+                                </span>
                         </div>
-                        <div class="h4 fw-semibold mt-2 mb-0">₱{{ total_overdue|floatformat:0 }}</div>
+                        <h4 class="mb-0">₱{{ total_overdue|floatformat:0 }}</h4>
                         <div class="text-muted small">{{ overdue_count }} payments</div>
                     </div>
                 </div>
