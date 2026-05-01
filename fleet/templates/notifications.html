@@ -59,11 +59,11 @@
             class="btn btn-sm {% if not notif_type %}btn-primary{% else %}btn-outline-secondary{% endif %}">
                 All Alerts ({{ total_count }})
             </a>
-            <a href="?type=payment"
+            <a href="{% url 'notifications' %}?type=payment"
             class="btn btn-sm {% if notif_type == 'payment' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
                 Payment Alerts ({{ payment_count }})
             </a>
-            <a href="?type=expiry"
+            <a href="{% url 'notifications' %}?type=expiry"
             class="btn btn-sm {% if notif_type == 'expiry' %}btn-primary{% else %}btn-outline-secondary{% endif %}">
                 Expiration Alerts ({{ expiry_count }})
             </a>
