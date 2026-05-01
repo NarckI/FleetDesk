@@ -1,5 +1,6 @@
 {% extends 'base.html' %}
-
+{% load static %}
+{% block title %}Notifications — Fleet Desk{% endblock %}
 {% block content %}
 <main class="main-content">
     <div class="container-xl my-4">
@@ -82,9 +83,9 @@
                 <div class="d-flex align-items-start gap-3">
                     <div class="mt-1">
                         {% if n.notification_type == 'payment_overdue' %}
-                        <i class="bi bi-credit-card-fill text-danger fs-5"></i>
-                        {% else %}  
-                        <i class="bi bi-calendar-x-fill text-warning fs-5"></i>
+                            <img id="notif-cc-ic" src="..\static\vendor\bootstrap-icons\icons\credit-card.svg" alt="Credit Card">
+                        {% else %}
+                            <img id="notif-calendar-ic" src="..\static\vendor\bootstrap-icons\icons\calendar4.svg" alt="Calendar">
                         {% endif %}
                     </div>
                     <div>
