@@ -3,32 +3,35 @@
 {% block title %}Drivers — Fleet Desk{% endblock %}
 
 {% block content %}
-<main class="main-content">
-    <div class="container-xl my-4">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <h3 class="h3">Driver Management</h3>
-                <p class="text-muted mb-0">Manage your fleet drivers</p>
-            </div>
-            <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addDriverModal">+ Add Driver</button>
-        </div>
-
-        <!-- Search -->
-        <div class="box mt-4 p-3">
-            <form method="get">
-                <div class="input-group">
-                    <button class="input-group-text bg-white border-0" type="submit">
-                        <img src="{% static 'image/search.svg' %}" alt="Search Icon">
-                    </button>
-                    <input type="search" name="q" value="{{ q }}" class="form-control border-0" placeholder="Search drivers...">
-                    {% if q %}<a href="{% url 'drivers' %}" class="btn btn-dark">Clear</a>{% endif %}
+    <main class="main-content">
+        <div class="container-xl my-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div>
+                    <h3 class="h3">Driver Management</h3>
+                    <p class="text-muted mb-0">Manage your fleet drivers</p>
                 </div>
-            </form>
-        
-        <!-- Table -->
-            <div class="table-responsive">
-                <table class="table table-hover mt-3">
-                    <thead>
+                <button type="button" class="btn btn-dark" data-bs-toggle="modal" data-bs-target="#addDriverModal">+ Add
+                    Driver
+                </button>
+            </div>
+
+            <!-- Search -->
+            <div class="box mt-4 p-3">
+                <form method="get">
+                    <div class="input-group">
+                        <button class="input-group-text bg-white border-0" type="submit">
+                            <img src="{% static 'image/search.svg' %}" alt="Search Icon">
+                        </button>
+                        <input type="search" name="q" value="{{ q }}" class="form-control border-0"
+                               placeholder="Search drivers...">
+                        {% if q %}<a href="{% url 'drivers' %}" class="btn btn-dark">Clear</a>{% endif %}
+                    </div>
+                </form>
+
+                <!-- Table -->
+                <div class="table-responsive">
+                    <table class="table table-hover mt-3">
+                        <thead>
                         <tr>
                             <th scope="col">Name</th>
                             <th scope="col">License #</th>
@@ -38,108 +41,191 @@
                             <th scope="col">Status</th>
                             <th scope="col" class="text-end">Actions</th>
                         </tr>
-                    </thead>
-                    <tbody class="align-items-center">
+                        </thead>
+                        <tbody class="align-items-center">
                         {% for d in drivers %}
-                        <tr>
-                            <td><span class="fw-semibold">{{ d.full_name }}</span></td>
-                            <td>{{ d.license_number }}</td>
-                            <td>{{ d.phone|default:"—" }}</td>
-                            <td>{{ d.email|default:"—" }}</td>
-                            <td>{{ d.license_expiry }}</td>
-                            <td><span class="badge-status {{ d.status }}">{{ d.status }}</span></td>
-                            <td class="text-end">
-                                <div class="d-flex gap-1 justify-content-end">
-                                    <button class="btn-action" title="Edit" onclick="openEditDriver({{ d.pk }})">
-                                        <img src="{% static 'image/pencil.svg' %}" alt="Edit">
-                                    </button>
-                                    <button class="btn-action" title="Delete"
-                                            onclick="confirmDeleteDriver({{ d.pk }}, '{{ d.full_name|escapejs }}')">
-                                        <img src="{% static 'image/trash.svg' %}" alt="Delete">
-                                    </button>
-                                </div>
-                            </td>
-                        </tr>
+                            <tr>
+                                <td><span class="fw-semibold">{{ d.full_name }}</span></td>
+                                <td>{{ d.license_number }}</td>
+                                <td>{{ d.phone|default:"—" }}</td>
+                                <td>{{ d.email|default:"—" }}</td>
+                                <td>{{ d.license_expiry }}</td>
+                                <td><span class="badge-status {{ d.status }}">{{ d.status }}</span></td>
+                                <td class="text-end">
+                                    <div class="d-flex gap-1 justify-content-end">
+                                        <button class="btn-action" title="Edit" onclick="openEditDriver({{ d.pk }})">
+                                            <img src="{% static 'image/pencil.svg' %}" alt="Edit">
+                                        </button>
+                                        <button class="btn-action" title="Delete"
+                                                onclick="confirmDeleteDriver({{ d.pk }}, '{{ d.full_name|escapejs }}')">
+                                            <img src="{% static 'image/trash.svg' %}" alt="Delete">
+                                        </button>
+                                    </div>
+                                </td>
+                            </tr>
                         {% empty %}
-                        <tr>
-                            <td colspan="9" class="text-center text-muted py-4">No drivers found.</td>
-                        </tr>
+                            <tr>
+                                <td colspan="9" class="text-center text-muted py-4">No drivers found.</td>
+                            </tr>
                         {% endfor %}
-                    </tbody>
-                </table>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Pagination -->
+            {% if drivers.has_other_pages %}
+                <div class="mt-3">
+                    <nav class="d-flex justify-content-center">
+                        <ul class="pagination">
+                            <!-- First Page -->
+                            <li class="page-item {% if not drivers.has_previous %}disabled{% endif %}">
+                                <a class="page-link"
+                                   href="{% if drivers.has_previous %}?q={{ q }}&page=1{% else %}#{% endif %}">«</a>
+                            </li>
+
+{#                            <!-- Previous Page -->#}
+{#                            <li class="page-item {% if not drivers.has_previous %}disabled{% endif %}">#}
+{#                                <a class="page-link" href="{% if drivers.has_previous %}?q={{ q }}&page=#}
+{#                                    {{ drivers.previous_page_number }}{% else %}#{% endif %}">‹</a>#}
+{#                            </li>#}
+
+                            {% for num in drivers.paginator.page_range %}
+                                {% if drivers.number == num %}
+                                    <li class="page-item active">
+                                        <span class="page-link">{{ num }}</span>
+                                    </li>
+                                {% elif num > drivers.number|add:'-3' and num < drivers.number|add:'3' %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?q={{ q }}&page={{ num }}">{{ num }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+{#                            <!-- Next Page -->#}
+{#                            <li class="page-item {% if not drivers.has_next %}disabled{% endif %}">#}
+{#                                <a class="page-link" href="{% if drivers.has_next %}?q={{ q }}&page=#}
+{#                                    {{ drivers.next_page_number }}{% else %}#{% endif %}">›</a>#}
+{#                            </li>#}
+
+                            <!-- Last Page -->
+                            <li class="page-item {% if not drivers.has_next %}disabled{% endif %}">
+                                <a class="page-link" href="{% if drivers.has_next %}?q={{ q }}&page=
+                                    {{ drivers.paginator.num_pages }}{% else %}#{% endif %}">»</a>
+                            </li>
+
+                        </ul>
+                    </nav>
+                    <small class="d-flex justify-content-center text-muted mt-1">
+                        Showing {{ drivers.start_index }}–{{ drivers.end_index }} of {{ drivers.paginator.count }}
+                        drivers
+                    </small>
+                </div>
+                </div>
+            {% endif %}
+
+
+        <!-- Add Driver Modal -->
+        <div class="modal fade" id="addDriverModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Add New Driver</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <form method="post" action="{% url 'driver_add' %}">
+                        {% csrf_token %}
+                        <div class="modal-body">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">First Name</label>
+                                    <input type="text" name="first_name" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Last Name</label>
+                                    <input type="text" name="last_name" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">License Number</label>
+                                    <input type="text" name="license_number" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Phone</label>
+                                    <input type="text" name="phone" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Email</label>
+                                    <input type="email" name="email" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Status</label>
+                                    <select name="status" class="form-select">
+                                        <option value="active">Active</option>
+                                        <option value="inactive">Inactive</option>
+                                        <option value="suspended">Suspended</option>
+                                    </select>
+                                </div>
+                                <div class="col-12">
+                                    <label class="form-label">Address</label>
+                                    <input type="text" name="address" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">License Expiry</label>
+                                    <input type="date" name="license_expiry" class="form-control" required>
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Date Joined</label>
+                                    <input type="date" name="date_joined" class="form-control"
+                                           value="{% now 'Y-m-d' %}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel
+                            </button>
+                            <button type="submit" class="btn btn-primary">Add Driver</button>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
 
-        <!-- Pagination -->
-        {% if drivers.has_other_pages %}
-        <div class="mt-3">
-            <nav class="d-flex justify-content-center">
-                <ul class="pagination">
-                    <li class="page-item {% if not drivers.has_previous %}disabled{% endif %}">
-                        <a class="page-link" href="{% if drivers.has_previous %}?q={{ q }}&page={{ drivers.previous_page_number }}{% else %}#{% endif %}">‹</a>
-                    </li>
-
-                    {% for num in drivers.paginator.page_range %}
-                        {% if drivers.number == num %}
-                            <li class="page-item active">
-                                <span class="page-link">{{ num }}</span>
-                            </li>
-                        {% elif num > drivers.number|add:'-3' and num < drivers.number|add:'3' %}
-                            <li class="page-item">
-                                <a class="page-link" href="?q={{ q }}&page={{ num }}">{{ num }}</a>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-
-                    <li class="page-item {% if not drivers.has_next %}disabled{% endif %}">
-                        <a class="page-link" href="{% if drivers.has_next %}?q={{ q }}&page={{ drivers.next_page_number }}{% else %}#{% endif %}">›</a>
-                    </li>
-
-                </ul>
-            </nav>
-            <small class="d-flex justify-content-center text-muted mt-1">
-                Showing {{ drivers.start_index }}–{{ drivers.end_index }} of {{ drivers.paginator.count }} drivers
-            </small>
-        </div>
-    </div>
-    {% endif %}
-
-
-    <!-- Add Driver Modal -->
-    <div class="modal fade" id="addDriverModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Add New Driver</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <form method="post" action="{% url 'driver_add' %}">
+        <!-- Edit Driver Modal -->
+        <div class="modal fade" id="editDriverModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered modal-lg">
+                <form method="post" id="editDriverForm" class="modal-content">
                     {% csrf_token %}
+                    <input type="hidden" id="editDriverPk">
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold">Edit Driver</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
                     <div class="modal-body">
                         <div class="row g-3">
                             <div class="col-md-6">
-                                <label class="form-label">First Name</label>
-                                <input type="text" name="first_name" class="form-control" required>
+                                <label class="form-label">First Name <span class="text-danger">*</span></label>
+                                <input type="text" name="first_name" id="editFirstName" class="form-control" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">Last Name</label>
-                                <input type="text" name="last_name" class="form-control" required>
+                                <label class="form-label">Last Name <span class="text-danger">*</span></label>
+                                <input type="text" name="last_name" id="editLastName" class="form-control" required>
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">License Number</label>
-                                <input type="text" name="license_number" class="form-control" required>
+                                <label class="form-label">License Number <span class="text-danger">*</span></label>
+                                <input type="text" name="license_number" id="editLicenseNumber" class="form-control"
+                                       required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Phone</label>
-                                <input type="text" name="phone" class="form-control" required>
+                                <input type="text" name="phone" id="editPhone" class="form-control">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Email</label>
-                                <input type="email" name="email" class="form-control" required>
+                                <input type="email" name="email" id="editEmail" class="form-control">
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Status</label>
-                                <select name="status" class="form-select">
+                                <select name="status" id="editDriverStatus" class="form-select">
                                     <option value="active">Active</option>
                                     <option value="inactive">Inactive</option>
                                     <option value="suspended">Suspended</option>
@@ -147,109 +233,45 @@
                             </div>
                             <div class="col-12">
                                 <label class="form-label">Address</label>
-                                <input type="text" name="address" class="form-control" required>
+                                <input type="text" name="address" id="editAddress" class="form-control">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label">License Expiry</label>
-                                <input type="date" name="license_expiry" class="form-control" required>
+                                <label class="form-label">License Expiry <span class="text-danger">*</span></label>
+                                <input type="date" name="license_expiry" id="editLicenseExpiry" class="form-control"
+                                       required>
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label">Date Joined</label>
-                                <input type="date" name="date_joined" class="form-control" value="{% now 'Y-m-d' %}">
+                                <input type="date" name="date_joined" id="editDateJoined" class="form-control">
                             </div>
                         </div>
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="submit" class="btn btn-primary">Add Driver</button>
+                        <button type="submit" class="btn btn-primary">Update Driver</button>
                     </div>
                 </form>
             </div>
         </div>
-    </div>
 
-    <!-- Edit Driver Modal -->
-    <div class="modal fade" id="editDriverModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered modal-lg">
-            <form method="post" id="editDriverForm" class="modal-content">
-                {% csrf_token %}
-                <input type="hidden" id="editDriverPk">
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold">Edit Driver</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row g-3">
-                        <div class="col-md-6">
-                            <label class="form-label">First Name <span class="text-danger">*</span></label>
-                            <input type="text" name="first_name" id="editFirstName" class="form-control" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Last Name <span class="text-danger">*</span></label>
-                            <input type="text" name="last_name" id="editLastName" class="form-control" required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">License Number <span class="text-danger">*</span></label>
-                            <input type="text" name="license_number" id="editLicenseNumber" class="form-control"
-                                   required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Phone</label>
-                            <input type="text" name="phone" id="editPhone" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Email</label>
-                            <input type="email" name="email" id="editEmail" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Status</label>
-                            <select name="status" id="editDriverStatus" class="form-select">
-                                <option value="active">Active</option>
-                                <option value="inactive">Inactive</option>
-                                <option value="suspended">Suspended</option>
-                            </select>
-                        </div>
-                        <div class="col-12">
-                            <label class="form-label">Address</label>
-                            <input type="text" name="address" id="editAddress" class="form-control">
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">License Expiry <span class="text-danger">*</span></label>
-                            <input type="date" name="license_expiry" id="editLicenseExpiry" class="form-control"
-                                   required>
-                        </div>
-                        <div class="col-md-6">
-                            <label class="form-label">Date Joined</label>
-                            <input type="date" name="date_joined" id="editDateJoined" class="form-control">
-                        </div>
+        <!-- Delete Driver Modal -->
+        <div class="modal fade" id="deleteDriverModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <form method="post" id="deleteDriverForm" class="modal-content">
+                    {% csrf_token %}
+                    <div class="modal-header">
+                        <h5 class="modal-title fw-bold text-danger">Delete Driver</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-primary">Update Driver</button>
-                </div>
-            </form>
+                    <div class="modal-body">
+                        <p class="mb-0">Are you sure you want to delete <strong id="deleteDriverName"></strong>?</p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-danger">Delete</button>
+                    </div>
+                </form>
+            </div>
         </div>
-    </div>
-
-    <!-- Delete Driver Modal -->
-    <div class="modal fade" id="deleteDriverModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
-            <form method="post" id="deleteDriverForm" class="modal-content">
-                {% csrf_token %}
-                <div class="modal-header">
-                    <h5 class="modal-title fw-bold text-danger">Delete Driver</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="modal-body">
-                    <p class="mb-0">Are you sure you want to delete <strong id="deleteDriverName"></strong>?</p>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="submit" class="btn btn-danger">Delete</button>
-                </div>
-            </form>
-        </div>
-    </div>
-</main>
+    </main>
 {% endblock %}
