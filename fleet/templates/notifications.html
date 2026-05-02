@@ -79,35 +79,59 @@
         <!-- Notification List -->
         {% for n in notifications %}
         <div class="notif-item notif-{{ n.severity }} {% if n.is_read %}read{% endif %} mb-2">
-            <div class="d-flex align-items-start justify-content-between gap-3">
-                <div class="d-flex align-items-start gap-3">
-                    <div class="mt-1">
-                        {% if n.notification_type == 'payment_overdue' %}
-                            <img id="notif-cc-ic" src="..\static\vendor\bootstrap-icons\icons\credit-card.svg" alt="Credit Card">
-                        {% else %}
-                            <img id="notif-calendar-ic" src="..\static\vendor\bootstrap-icons\icons\calendar4.svg" alt="Calendar">
-                        {% endif %}
-                    </div>
-                    <div>
-                        <div class="fw-semibold mb-1">
-                            {{ n.title }}
-                            <span class="badge ms-2 {% if n.severity == 'high' %}bg-danger{% elif n.severity == 'medium' %}bg-warning text-dark{% else %}bg-info{% endif %}"
-                                style="font-size:0.7rem;">
-                {{ n.severity|capfirst }}
-            </span>
+            {% if n.notification_type == 'payment_overdue' %}
+            <div class="payment-border py-4 px-3 mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="gap-3 d-flex align-items-center">
+                        <img id="notif-cc-ic" src="..\static\vendor\bootstrap-icons\icons\credit-card.svg" alt="Credit Card" style="width: 20px; height: 20px;">
+                        <div>
+                            <div class="fw-semibold mb-1">
+                                {{ n.title }}
+                                <span class="badge ms-2 {% if n.severity == 'high' %}bg-danger{% elif n.severity == 'medium' %}bg-warning text-dark{% else %}bg-info{% endif %}"
+                                    style="font-size:0.7rem;">
+                                    {{ n.severity|capfirst }}
+                                </span>
+                            </div>
+                            <div class="text-muted small">{{ n.message }}</div>
+                            <div class="text-muted" style="font-size:0.75rem;">{{ n.created_at|date:"M d, Y H:i" }}</div>
                         </div>
-                        <div class="text-muted small">{{ n.message }}</div>
-                        <div class="text-muted" style="font-size:0.75rem;">{{ n.created_at|date:"M d, Y H:i" }}</div>
                     </div>
+                    {% if not n.is_read %}
+                    <form method="post" action="{% url 'notification_mark_read' n.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-dark text-nowrap">Mark Read</button>
+                    </form>
+                    {% endif %}
                 </div>
-                {% if not n.is_read %}
-                <form method="post" action="{% url 'notification_mark_read' n.pk %}" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-sm btn-outline-secondary text-nowrap">Mark Read</button>
-                </form>
-                {% endif %}
-            </div>
+            </div>    
+            {% else %}
+            <div class="expiry-border py-4 px-3 mb-3">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="gap-3 d-flex align-items-center">
+                        <img id="notif-calendar-ic" src="..\static\vendor\bootstrap-icons\icons\calendar4.svg" alt="Credit Card" style="width: 20px; height: 20px;">
+                        <div>
+                            <div class="fw-semibold mb-1">
+                                {{ n.title }}
+                                <span class="badge ms-2 {% if n.severity == 'high' %}bg-danger{% elif n.severity == 'medium' %}bg-warning text-dark{% else %}bg-info{% endif %}"
+                                    style="font-size:0.7rem;">
+                                    {{ n.severity|capfirst }}
+                                </span>
+                            </div>
+                            <div class="text-muted small">{{ n.message }}</div>
+                            <div class="text-muted" style="font-size:0.75rem;">{{ n.created_at|date:"M d, Y H:i" }}</div>
+                        </div>
+                    </div>
+                    {% if not n.is_read %}
+                    <form method="post" action="{% url 'notification_mark_read' n.pk %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-dark text-nowrap">Mark Read</button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>                       
+            {% endif %}
         </div>
+
         {% empty %}
             <div class="box container-xl">
                 <div class="d-flex py-5 justify-content-center flex-column align-items-center">
