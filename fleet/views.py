@@ -10,7 +10,14 @@ from datetime import date
 from django.urls import reverse
 from django.core.paginator import Paginator
 from .models import Driver, Vehicle, Contract, Payment, Repair, Notification, RepairReceipt
-from .services import auto_expire_contracts, run_daily_tasks, mark_overdue_payments, generate_daily_payments
+from .services import (
+    auto_expire_contracts,
+    count_unread_notifications,
+    generate_daily_payments,
+    get_dashboard_stats,
+    mark_overdue_payments,
+    run_daily_tasks,
+)
 
 
 # Create your views here.
@@ -37,25 +44,15 @@ def logout_user(request):
 @login_required
 def home(request):
     run_daily_tasks()
+    stats = get_dashboard_stats()
     recent_contracts = Contract.objects.select_related('driver','vehicle').order_by('-created_at')[:6]
     recent_payments = Payment.objects.select_related('contract__driver').order_by('-created_at')[:6]
-    paid_agg = Payment.objects.filter(status='paid').aggregate(t=Sum('amount_paid'))
     ctx = {
-        'total_drivers': Driver.objects.count(),
-        'active_drivers': Driver.objects.filter(status='active').count(),
-        'total_vehicles': Vehicle.objects.count(),
-        'available_vehicles': Vehicle.objects.filter(status='available').count(),
-        'active_contracts': Contract.objects.filter(status='active').count(),
+        **stats,
         'recent_contracts': recent_contracts,
-        'revenue_paid': paid_agg['t'] or 0,
-        'payment_count': Payment.objects.filter(status='paid').count(),
-        'pending_payments': Payment.objects.filter(status='pending').count(),
-        'overdue_payments': Payment.objects.filter(status='overdue').count(),
         'recent_payments': recent_payments,
-        'unread_notifications': Notification.objects.filter(is_read=False).count(),
     }
     return render(request, 'home.html', ctx)
-
 # ── Drivers ──────────────────────────────────────────────────────────────────
 
 @login_required
@@ -74,7 +71,7 @@ def drivers(request):
         qs = qs.filter(Q(first_name__icontains=q)|Q(last_name__icontains=q)|Q(license_number__icontains=q)|Q(phone__icontains=q)|Q(email__icontains=q))
     paginator = Paginator(qs, 10)
     drivers_page = paginator.get_page(page_number)
-    ctx = {'drivers': drivers_page, 'q': q, 'unread_notifications': Notification.objects.filter(is_read=False).count()}
+    ctx = {'drivers': drivers_page, 'q': q, 'unread_notifications': count_unread_notifications()}
     return render(request, 'drivers.html', ctx)
 
 
@@ -145,7 +142,7 @@ def vehicles(request):
         qs = qs.filter(Q(plate_number__icontains=q)|Q(brand__icontains=q)|Q(model__icontains=q))
     paginator = Paginator(qs, 10)
     vehicles_page = paginator.get_page(page_number)
-    ctx = {'vehicles': vehicles_page, 'q': q, 'unread_notifications': Notification.objects.filter(is_read=False).count()}
+    ctx = {'vehicles': vehicles_page, 'q': q, 'unread_notifications': count_unread_notifications()}
     return render(request, 'vehicles.html', ctx)
 
 
@@ -257,7 +254,7 @@ def contracts(request):
         'contracts': contracts_page, 'q': q,
         'available_drivers': available_drivers,
         'available_vehicles': available_vehicles,
-        'unread_notifications': Notification.objects.filter(is_read=False).count(),
+        'unread_notifications': count_unread_notifications(),
     }
     return render(request, 'contracts.html', ctx)
 
@@ -268,21 +265,18 @@ def contract_add(request):
     page = request.POST.get('page', 1)
     try:
         start_date = date.fromisoformat(request.POST['start_date'])
+        end_date = date.fromisoformat(request.POST['end_date'])
         contract = Contract.objects.create(
             driver_id=request.POST['driver'],
             vehicle_id=request.POST['vehicle'],
             daily_rate=Decimal(request.POST['daily_rate']),
-            start_date=request.POST['start_date'],
-            end_date=request.POST['end_date'],
+            start_date=start_date,
+            end_date=end_date,
             status=request.POST.get('status','active'),
         )
-        # Create today's payment if contract is active today
-        today = date.today()
-        if contract.status == 'active' and start_date == today:
-            Payment.objects.get_or_create(
-                contract=contract, due_date=today,
-                defaults={'amount': contract.daily_rate, 'balance': contract.daily_rate, 'status': 'pending'}
-            )
+        today = timezone.localdate()
+        generate_daily_payments(today)
+        if Payment.objects.filter(contract=contract, due_date=today).exists():
             messages.success(request, 'Payment generated successfully.')
         messages.success(request, 'Contract added successfully.')
     except Exception as e:
@@ -306,6 +300,7 @@ def contract_edit(request, pk):
         contract.daily_rate = Decimal(request.POST['daily_rate'])
         contract.status = request.POST.get('status', contract.status)
         contract.save()
+        generate_daily_payments(timezone.localdate())
         messages.success(request, 'Contract updated.')
     except Exception as e:
         messages.error(request, f'Error: {e}')
@@ -362,9 +357,13 @@ def payments(request):
 
     ctx = {
         'payments': payments_page, 'status_filter': status_filter, 'q': q,
-        'total_paid': total_paid, 'total_pending': total_pending, 'total_overdue': total_overdue,
-        'pending_count': pending_count, 'overdue_count': overdue_count, 'payment_count': payment_count,
-        'unread_notifications': Notification.objects.filter(is_read=False).count(),
+        'total_paid': stats['revenue_paid'],
+        'total_pending': stats['pending_payments'],
+        'total_overdue': stats['overdue_payments'],
+        'pending_count': stats['pending_payments'],
+        'overdue_count': stats['overdue_payments'],
+        'payment_count': stats['payment_count'],
+        'unread_notifications': count_unread_notifications(),
     }
     return render(request, 'payments.html', ctx)
 
@@ -498,7 +497,7 @@ def repairs(request):
     ctx = {
         'repairs': repairs_page, 'q': q,
         'checklist_groups': REPAIR_CHECKLIST,
-        'unread_notifications': Notification.objects.filter(is_read=False).count(),
+        'unread_notifications': count_unread_notifications(),
     }
     return render(request, 'repairs.html', ctx)
 
@@ -609,7 +608,7 @@ def notifications(request):
         'payment_count': payment_count,
         'expiry_count': expiry_count,
         'total_count': payment_count + expiry_count,
-        'unread_notifications': Notification.objects.filter(is_read=False).count(),
+        'unread_notifications': count_unread_notifications(),
     }
     return render(request, 'notifications.html', ctx)
 
