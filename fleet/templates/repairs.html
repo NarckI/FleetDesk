@@ -48,7 +48,7 @@
                                 <td>{{ r.vehicle.year }}</td>
                                 <td>{{ r.vehicle.get_vehicle_type_display }}</td>
                                 <td><span
-                                        class="status-badge badge-{{ r.status|slugify }}">{{ r.get_status_display }}</span>
+                                        class="status-badge badge-{{ r.status|slugify }}">{{ r.status_display }}</span>
                                 </td>
                                 <td>{{ r.date_finished|default:"—" }}</td>
                                 <td>{{ r.created_at|date:"m/d/Y" }}</td>

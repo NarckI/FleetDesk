@@ -13,6 +13,13 @@ from .models import Driver, Vehicle, Contract, Payment, Repair, Notification, Re
 from .services import (
     auto_expire_contracts,
     count_unread_notifications,
+    fetch_driver_rows,
+    fetch_contract_rows,
+    fetch_payment_rows,
+    fetch_recent_contracts,
+    fetch_recent_payments,
+    fetch_repair_rows,
+    fetch_vehicle_rows,
     generate_daily_payments,
     get_dashboard_stats,
     mark_overdue_payments,
@@ -45,8 +52,8 @@ def logout_user(request):
 def home(request):
     run_daily_tasks()
     stats = get_dashboard_stats()
-    recent_contracts = Contract.objects.select_related('driver','vehicle').order_by('-created_at')[:6]
-    recent_payments = Payment.objects.select_related('contract__driver').order_by('-created_at')[:6]
+    recent_contracts = fetch_recent_contracts(6)
+    recent_payments = fetch_recent_payments(6)
     ctx = {
         **stats,
         'recent_contracts': recent_contracts,
@@ -59,17 +66,8 @@ def home(request):
 def drivers(request):
     q = request.GET.get('q','')
     page_number = request.GET.get('page')
-    qs = Driver.objects.all().annotate(
-        status_order=Case(
-            When(status='suspended', then=Value(2)),
-            When(status='inactive', then=Value(1)),
-            default=Value(0),
-            output_field=IntegerField(),
-        )
-    ).order_by('status_order', '-created_at')
-    if q:
-        qs = qs.filter(Q(first_name__icontains=q)|Q(last_name__icontains=q)|Q(license_number__icontains=q)|Q(phone__icontains=q)|Q(email__icontains=q))
-    paginator = Paginator(qs, 10)
+    rows = fetch_driver_rows(q or None)
+    paginator = Paginator(rows, 10)
     drivers_page = paginator.get_page(page_number)
     ctx = {'drivers': drivers_page, 'q': q, 'unread_notifications': count_unread_notifications()}
     return render(request, 'drivers.html', ctx)
@@ -137,10 +135,8 @@ def driver_delete(request, pk):
 def vehicles(request):
     q = request.GET.get('q','')
     page_number = request.GET.get('page')
-    qs = Vehicle.objects.all()
-    if q:
-        qs = qs.filter(Q(plate_number__icontains=q)|Q(brand__icontains=q)|Q(model__icontains=q))
-    paginator = Paginator(qs, 10)
+    rows = fetch_vehicle_rows(q or None)
+    paginator = Paginator(rows, 10)
     vehicles_page = paginator.get_page(page_number)
     ctx = {'vehicles': vehicles_page, 'q': q, 'unread_notifications': count_unread_notifications()}
     return render(request, 'vehicles.html', ctx)
@@ -231,29 +227,14 @@ def contracts(request):
     auto_expire_contracts()
     q = request.GET.get('q','')
     page_number = request.GET.get('page')
-    qs = Contract.objects.select_related('driver','vehicle').annotate(
-        status_order=Case(
-            When(status='terminated', then=Value(1)),
-            default=Value(0),
-            output_field=IntegerField(),
-        )
-    ).order_by('status_order', '-created_at')
-    if q:
-        qs = qs.filter(Q(driver__first_name__icontains=q)|Q(driver__last_name__icontains=q)|Q(vehicle__plate_number__icontains=q))
-
-    # For dropdowns — filtered
-    available_drivers = Driver.objects.filter(status='active').exclude(
-        contracts__status='active'
-    )
-    available_vehicles = Vehicle.objects.filter(status='available')
-
-    paginator = Paginator(qs, 10)
+    rows = fetch_contract_rows(q or None)
+    paginator = Paginator(rows, 10)
     contracts_page = paginator.get_page(page_number)
 
     ctx = {
         'contracts': contracts_page, 'q': q,
-        'available_drivers': available_drivers,
-        'available_vehicles': available_vehicles,
+        'available_drivers': Driver.objects.filter(status='active').exclude(contracts__status='active'),
+        'available_vehicles': Vehicle.objects.filter(status='available'),
         'unread_notifications': count_unread_notifications(),
     }
     return render(request, 'contracts.html', ctx)
@@ -330,29 +311,12 @@ def contract_delete(request, pk):
 def payments(request):
     mark_overdue_payments()
     generate_daily_payments()
+    stats = get_dashboard_stats()
     status_filter = request.GET.get('status','')
     q = request.GET.get('q','')
     page_number = request.GET.get('page')
-    qs = Payment.objects.select_related('contract__driver','contract__vehicle').annotate(
-        status_order=Case(
-            When(status='paid', then=Value(1)),
-            default=Value(0),
-            output_field=IntegerField(),
-        )
-    ).order_by('-due_date', 'status_order', 'balance')
-    if status_filter:
-        qs = qs.filter(status=status_filter)
-    if q:
-        qs = qs.filter(Q(contract__driver__first_name__icontains=q)|Q(contract__driver__last_name__icontains=q))
-
-    total_paid = Payment.objects.filter(status='paid').aggregate(t=Sum('amount_paid'))['t'] or 0
-    total_pending = Payment.objects.filter(status='pending').aggregate(t=Sum('balance'))['t'] or 0
-    total_overdue = Payment.objects.filter(status='overdue').aggregate(t=Sum('balance'))['t'] or 0
-    payment_count = Payment.objects.filter(status='paid').count()
-    pending_count = Payment.objects.filter(status='pending').count()
-    overdue_count = Payment.objects.filter(status='overdue').count()
-
-    paginator = Paginator(qs, 20)
+    rows = fetch_payment_rows(status_filter or None, q or None)
+    paginator = Paginator(rows, 20)
     payments_page = paginator.get_page(page_number)
 
     ctx = {
@@ -488,11 +452,8 @@ REPAIR_CHECKLIST = [
 def repairs(request):
     q = request.GET.get('q','')
     page_number = request.GET.get('page')
-    qs = Repair.objects.select_related('vehicle','driver').prefetch_related('receipts').all()
-    if q:
-        qs = qs.filter(Q(vehicle__plate_number__icontains=q)|Q(vehicle__brand__icontains=q)|Q(vehicle__model__icontains=q))
-
-    paginator = Paginator(qs, 10)
+    rows = fetch_repair_rows(q or None)
+    paginator = Paginator(rows, 10)
     repairs_page = paginator.get_page(page_number)
     ctx = {
         'repairs': repairs_page, 'q': q,

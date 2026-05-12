@@ -50,9 +50,9 @@
                                 <td>{{ v.year }}</td>
                                 <td>{{ v.get_vehicle_type_display }}</td>
                                 <td>{{ v.mileage|default:0 }} km</td>
-                                <td>{{ v.last_maintenance|default:"—" }}</td>
-                                <td><span class="badge-status {{ v.status }}">{{ v.get_status_display }}</span></td>
-                                <td class="text-end">
+                                 <td>{{ v.last_maintenance|default:"—" }}</td>
+                                 <td><span class="badge-status {{ v.status }}">{{ v.status|title }}</span></td>
+                                 <td class="text-end">
                                     <div class="d-flex gap-1 justify-content-end">
                                         <button class="btn-action primary" title="Edit"
                                                 onclick="openEditVehicle({{ v.pk }})">
