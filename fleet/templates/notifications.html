@@ -98,7 +98,7 @@
                         </div>
                     </div>
                     {% if not n.is_read %}
-                    <form method="post" action="{% url 'notification_mark_read' n.pk %}" style="display:inline;">
+                    <form method="post" action="{% url 'notification_mark_read' n.id %}" style="display:inline;">
                         {% csrf_token %}
                         <button type="submit" class="btn btn-sm btn-dark text-nowrap">Mark Read</button>
                     </form>
@@ -123,7 +123,7 @@
                         </div>
                     </div>
                     {% if not n.is_read %}
-                    <form method="post" action="{% url 'notification_mark_read' n.pk %}" style="display:inline;">
+                    <form method="post" action="{% url 'notification_mark_read' n.id %}" style="display:inline;">
                         {% csrf_token %}
                         <input type="hidden" name="type" value="{{ notif_type }}">
                         <button type="submit" class="btn btn-sm btn-dark text-nowrap">Mark Read</button>

@@ -97,7 +97,7 @@
                                 <td>{{ p.due_date }}</td>
                                 <td>{{ p.paid_date|default:"—" }}</td>
                                 <td>₱{{ p.balance|floatformat:0 }}</td>
-                                <td><span class="badge-status {{ p.status }}">{{ p.status }}</span></td>
+                                <td><span class="badge-status {{ p.status }}">{{ p.status_display }}</span></td>
                                 <td class="d-flex justify-content-end">
                                     <div class="d-flex gap-1 align-items-center">
                                         {% if p.status == 'paid' %}

@@ -11,6 +11,18 @@ def _fetchall_dicts(cursor):
     return [dict(zip(columns, row)) for row in cursor.fetchall()]
 
 
+def _status_display(value):
+    return '' if value is None else str(value).replace('-', ' ').title()
+
+
+def _vehicle_type_display(value):
+    if value == '4-seater':
+        return '4 Seater'
+    if value == '7-seater':
+        return '7 Seater'
+    return _status_display(value)
+
+
 def count_unread_notifications():
     notification_table = Notification._meta.db_table
     with connection.cursor() as cursor:
@@ -113,6 +125,7 @@ def fetch_recent_contracts(limit=6):
             'end_date': row['end_date'],
             'daily_rate': row['daily_rate'],
             'status': row['status'],
+            'status_display': _status_display(row['status']),
             'created_at': row['created_at'],
             'driver': {'full_name': f"{row['first_name']} {row['last_name']}"},
             'vehicle': {
@@ -162,6 +175,7 @@ def fetch_recent_payments(limit=6):
             'paid_date': row['paid_date'],
             'balance': row['balance'],
             'status': row['status'],
+            'status_display': _status_display(row['status']),
             'created_at': row['created_at'],
             'contract': {
                 'pk': row['contract_pk'],
@@ -289,6 +303,7 @@ def fetch_vehicle_rows(query=None):
             'plate_number': row['plate_number'],
             'vehicle_registration': row['vehicle_registration'],
             'vehicle_type': row['vehicle_type'],
+            'vehicle_type_display': row['get_vehicle_type_display'],
             'get_vehicle_type_display': row['get_vehicle_type_display'],
             'brand': row['brand'],
             'model': row['model'],
@@ -296,6 +311,7 @@ def fetch_vehicle_rows(query=None):
             'mileage': row['mileage'],
             'last_maintenance': row['last_maintenance'],
             'status': row['status'],
+            'status_display': _status_display(row['status']),
             'or_expiry': row['or_expiry'],
             'cr_expiry': row['cr_expiry'],
             'cpc_expiry': row['cpc_expiry'],
@@ -356,6 +372,7 @@ def fetch_contract_rows(query=None):
             'end_date': row['end_date'],
             'daily_rate': row['daily_rate'],
             'status': row['status'],
+            'status_display': _status_display(row['status']),
             'created_at': row['created_at'],
             'driver': {'full_name': f"{row['first_name']} {row['last_name']}"},
             'vehicle': {
@@ -426,6 +443,7 @@ def fetch_payment_rows(status_filter=None, query=None):
             'paid_date': row['paid_date'],
             'balance': row['balance'],
             'status': row['status'],
+            'status_display': _status_display(row['status']),
             'created_at': row['created_at'],
             'contract': {
                 'pk': row['contract_pk'],
@@ -498,13 +516,14 @@ def fetch_repair_rows(query=None):
             'repair_details': row['repair_details'],
             'repair_shop_name': row['repair_shop_name'],
             'checklist': row['checklist'],
-            'status_display': row['status'].replace('-', ' ').title(),
+            'status_display': _status_display(row['status']),
             'vehicle': {
                 'plate_number': row['plate_number'],
                 'brand': row['brand'],
                 'model': row['model'],
                 'year': row['year'],
-                'vehicle_type_display': '4 Seater' if row['vehicle_type'] == '4-seater' else '7 Seater',
+                'vehicle_type_display': _vehicle_type_display(row['vehicle_type']),
+                'get_vehicle_type_display': _vehicle_type_display(row['vehicle_type']),
             },
             'driver': {
                 'full_name': f"{row['first_name']} {row['last_name']}".strip() if row['first_name'] else None,
@@ -622,52 +641,243 @@ def generate_daily_payments(today=None):
         )
 
 def generate_notifications(today=None):
-    today = today or date.today()
+    today = _today(today)
+    driver_table = Driver._meta.db_table
+    vehicle_table = Vehicle._meta.db_table
+    payment_table = Payment._meta.db_table
+    notification_table = Notification._meta.db_table
 
-    for driver in Driver.objects.filter(status='active'):
-        days_left = (driver.license_expiry - today).days
-        if days_left == 21 or 0 <= days_left <= 14:
-            sev = 'high' if 0 <= days_left <= 7 else 'medium'
-            Notification.objects.get_or_create(
-                notification_type='license_expiry', related_driver=driver,
-                created_at__date=today,
-                defaults={
-                    'title': 'Driver License Expiring Soon',
-                    'message': f"{driver.full_name}'s license expires in {days_left} days ({driver.license_expiry}).",
-                    'severity': sev, 'related_driver': driver,
-                }
+    with transaction.atomic(), connection.cursor() as cursor:
+        cursor.execute(
+            f"""
+            INSERT INTO {notification_table}
+                (notification_type, title, message, severity, is_read, related_driver_id, related_vehicle_id, related_contract_id, related_payment_id, created_at)
+            SELECT
+                'license_expiry',
+                'Driver License Expiring Soon',
+                d.first_name || ' ' || d.last_name || '''s license expires in ' || (d.license_expiry - %s) || ' days (' || d.license_expiry || ').',
+                CASE
+                    WHEN (d.license_expiry - %s) BETWEEN 0 AND 7 THEN 'high'
+                    ELSE 'medium'
+                END,
+                FALSE,
+                d.id,
+                NULL,
+                NULL,
+                NULL,
+                NOW()
+              FROM {driver_table} d
+             WHERE d.status = 'active'
+               AND d.license_expiry IS NOT NULL
+               AND (
+                    d.license_expiry - %s = 21
+                    OR (d.license_expiry - %s) BETWEEN 0 AND 14
+               )
+               AND NOT EXISTS (
+                   SELECT 1
+                     FROM {notification_table} n
+                    WHERE n.notification_type = 'license_expiry'
+                      AND n.related_driver_id = d.id
+                      AND n.created_at::date = %s
+               )
+            """,
+            [today, today, today, today, today],
+        )
+
+        for field, label in [('or_expiry', 'OR'), ('cr_expiry', 'CR'), ('cpc_expiry', 'CPC')]:
+            cursor.execute(
+                f"""
+                INSERT INTO {notification_table}
+                    (notification_type, title, message, severity, is_read, related_driver_id, related_vehicle_id, related_contract_id, related_payment_id, created_at)
+                SELECT
+                    %s,
+                    %s,
+                    v.plate_number || ' ' || %s || ' expires in ' || (v.{field} - %s) || ' days (' || v.{field} || ').',
+                    CASE
+                        WHEN (v.{field} - %s) BETWEEN 0 AND 7 THEN 'high'
+                        ELSE 'medium'
+                    END,
+                    FALSE,
+                    NULL,
+                    v.id,
+                    NULL,
+                    NULL,
+                    NOW()
+                  FROM {vehicle_table} v
+                 WHERE v.{field} IS NOT NULL
+                   AND (
+                        v.{field} - %s = 14
+                        OR (v.{field} - %s) BETWEEN 0 AND 7
+                   )
+                   AND NOT EXISTS (
+                       SELECT 1
+                         FROM {notification_table} n
+                        WHERE n.notification_type = %s
+                          AND n.related_vehicle_id = v.id
+                          AND n.created_at::date = %s
+                   )
+                """,
+                [label.lower() + '_expiry', f'Vehicle {label} Expiring Soon', label, today, today, today, today, label.lower() + '_expiry', today],
             )
 
-    for vehicle in Vehicle.objects.all():
-        for field, ntype, label in [
-            ('or_expiry','or_expiry','OR'),
-            ('cr_expiry','cr_expiry','CR'),
-            ('cpc_expiry','cpc_expiry','CPC'),
-        ]:
-            expiry = getattr(vehicle, field)
-            if not expiry: continue
-            days_left = (expiry - today).days
-            if days_left == 14 or 0 <= days_left <= 7:
-                sev = 'high' if 0 <= days_left <= 7 else 'medium'
-                Notification.objects.get_or_create(
-                    notification_type=ntype, related_vehicle=vehicle,
-                    created_at__date=today,
-                    defaults={
-                        'title': f'Vehicle {label} Expiring Soon',
-                        'message': f"{vehicle.plate_number} {label} expires in {days_left} days ({expiry}).",
-                        'severity': sev, 'related_vehicle': vehicle,
-                    }
-                )
-
-    for payment in Payment.objects.filter(status='overdue').select_related('contract','contract__driver'):
-        days_over = (today - payment.due_date).days
-        Notification.objects.get_or_create(
-            notification_type='payment_overdue', related_payment=payment,
-            created_at__date=today,
-            defaults={
-                'title': 'Overdue Payment',
-                'message': f"Payment of ₱{payment.balance:,.2f} is {days_over} day/s overdue (Due: {payment.due_date}).",
-                'severity': 'high', 'related_payment': payment,
-                'related_contract': payment.contract,
-            }
+        cursor.execute(
+            f"""
+            INSERT INTO {notification_table}
+                (notification_type, title, message, severity, is_read, related_driver_id, related_vehicle_id, related_contract_id, related_payment_id, created_at)
+            SELECT
+                'payment_overdue',
+                'Overdue Payment',
+                'Payment of ₱' || TO_CHAR(p.balance, 'FM999,999,999,990.00') || ' is ' || (%s - p.due_date) || ' day/s overdue (Due: ' || p.due_date || ').',
+                'high',
+                FALSE,
+                NULL,
+                NULL,
+                c.id,
+                p.id,
+                NOW()
+              FROM {payment_table} p
+              JOIN {Contract._meta.db_table} c ON p.contract_id = c.id
+             WHERE p.status = 'overdue'
+               AND NOT EXISTS (
+                   SELECT 1
+                     FROM {notification_table} n
+                    WHERE n.notification_type = 'payment_overdue'
+                      AND n.related_payment_id = p.id
+                      AND n.created_at::date = %s
+               )
+            """,
+            [today, today],
         )
+
+def fetch_available_drivers():
+    """Raw SQL: Get drivers with status='active' and no active contracts"""
+    driver_table = Driver._meta.db_table
+    contract_table = Contract._meta.db_table
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"""
+            SELECT
+                d.id, d.first_name, d.last_name
+              FROM {driver_table} d
+             WHERE d.status = 'active'
+               AND NOT EXISTS (
+                   SELECT 1 FROM {contract_table} c
+                    WHERE c.driver_id = d.id AND c.status = 'active'
+               )
+             ORDER BY d.first_name, d.last_name
+            """
+        )
+        rows = _fetchall_dicts(cursor)
+
+    return [
+        {
+            'id': row['id'],
+            'first_name': row['first_name'],
+            'last_name': row['last_name'],
+        }
+        for row in rows
+    ]
+
+
+def fetch_available_vehicles():
+    """Raw SQL: Get vehicles with status='available'"""
+    vehicle_table = Vehicle._meta.db_table
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"""
+            SELECT id, plate_number, brand, model
+              FROM {vehicle_table}
+             WHERE status = 'available'
+             ORDER BY plate_number
+            """
+        )
+        rows = _fetchall_dicts(cursor)
+
+    return [
+        {
+            'id': row['id'],
+            'plate_number': row['plate_number'],
+            'brand': row['brand'],
+            'model': row['model'],
+        }
+        for row in rows
+    ]
+
+
+def payment_exists_for_contract_date(contract_id, due_date):
+    """Raw SQL: Check if payment exists for contract on a given date"""
+    payment_table = Payment._meta.db_table
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"SELECT COUNT(*) FROM {payment_table} WHERE contract_id = %s AND due_date = %s",
+            [contract_id, due_date],
+        )
+        return cursor.fetchone()[0] > 0
+
+
+def fetch_notifications(notification_type=None):
+    """Raw SQL: Fetch all notifications with optional type filter"""
+    notification_table = Notification._meta.db_table
+
+    where = ""
+    params = []
+    if notification_type:
+        where = "WHERE notification_type = %s"
+        params = [notification_type]
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"""
+            SELECT * FROM {notification_table}
+            {where}
+            ORDER BY created_at DESC
+            """,
+            params,
+        )
+        rows = _fetchall_dicts(cursor)
+
+    return rows
+
+
+def count_notifications_by_type(notification_type):
+    """Raw SQL: Count notifications by type"""
+    notification_table = Notification._meta.db_table
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"SELECT COUNT(*) FROM {notification_table} WHERE notification_type = %s",
+            [notification_type],
+        )
+        return cursor.fetchone()[0]
+
+
+def mark_notifications_read(notification_type=None):
+    """Raw SQL: Mark notifications as read, optionally filtered by type"""
+    notification_table = Notification._meta.db_table
+
+    where = ""
+    params = []
+    if notification_type:
+        where = "AND notification_type IN %s"
+        params = [tuple(notification_type)]
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"UPDATE {notification_table} SET is_read = TRUE WHERE is_read = FALSE {where}",
+            params,
+        )
+
+
+def vehicle_has_active_contracts(vehicle_id):
+    """Raw SQL: Check if vehicle has any active contracts"""
+    contract_table = Contract._meta.db_table
+
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"SELECT COUNT(*) FROM {contract_table} WHERE vehicle_id = %s AND status = 'active'",
+            [vehicle_id],
+        )
+        return cursor.fetchone()[0] > 0

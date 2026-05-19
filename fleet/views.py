@@ -5,6 +5,7 @@ from django.views.decorators.http import require_POST
 from django.http import JsonResponse
 from django.contrib import messages
 from django.db.models import Q, Sum, Case, When, Value, IntegerField
+from django.utils import timezone
 from decimal import Decimal
 from datetime import date
 from django.urls import reverse
@@ -13,8 +14,12 @@ from .models import Driver, Vehicle, Contract, Payment, Repair, Notification, Re
 from .services import (
     auto_expire_contracts,
     count_unread_notifications,
-    fetch_driver_rows,
+    count_notifications_by_type,
+    fetch_available_drivers,
+    fetch_available_vehicles,
     fetch_contract_rows,
+    fetch_driver_rows,
+    fetch_notifications,
     fetch_payment_rows,
     fetch_recent_contracts,
     fetch_recent_payments,
@@ -22,8 +27,11 @@ from .services import (
     fetch_vehicle_rows,
     generate_daily_payments,
     get_dashboard_stats,
+    mark_notifications_read,
     mark_overdue_payments,
+    payment_exists_for_contract_date,
     run_daily_tasks,
+    vehicle_has_active_contracts,
 )
 
 
@@ -208,11 +216,29 @@ def vehicle_delete(request, pk):
 @login_required
 @require_POST
 def vehicle_create_repair(request, pk):
+    from django.db import connection
     vehicle = get_object_or_404(Vehicle, pk=pk)
-    active_contract = vehicle.contracts.filter(status='active').select_related('driver').first()
+
+    # Raw SQL: Get active contract for this vehicle
+    contract_table = Contract._meta.db_table
+    driver_table = Driver._meta.db_table
+    with connection.cursor() as cursor:
+        cursor.execute(
+            f"""
+            SELECT c.id, d.id as driver_id
+              FROM {contract_table} c
+              LEFT JOIN {driver_table} d ON c.driver_id = d.id
+             WHERE c.vehicle_id = %s AND c.status = 'active'
+             LIMIT 1
+            """,
+            [pk],
+        )
+        result = cursor.fetchone()
+
+    driver_id = result[1] if result else None
     repair = Repair.objects.create(
         vehicle=vehicle,
-        driver=active_contract.driver if active_contract else None,
+        driver_id=driver_id,
         status='pending',
     )
     vehicle.status = 'maintenance'
@@ -233,8 +259,8 @@ def contracts(request):
 
     ctx = {
         'contracts': contracts_page, 'q': q,
-        'available_drivers': Driver.objects.filter(status='active').exclude(contracts__status='active'),
-        'available_vehicles': Vehicle.objects.filter(status='available'),
+        'available_drivers': fetch_available_drivers(),
+        'available_vehicles': fetch_available_vehicles(),
         'unread_notifications': count_unread_notifications(),
     }
     return render(request, 'contracts.html', ctx)
@@ -257,7 +283,7 @@ def contract_add(request):
         )
         today = timezone.localdate()
         generate_daily_payments(today)
-        if Payment.objects.filter(contract=contract, due_date=today).exists():
+        if payment_exists_for_contract_date(contract.id, today):
             messages.success(request, 'Payment generated successfully.')
         messages.success(request, 'Contract added successfully.')
     except Exception as e:
@@ -484,7 +510,7 @@ def repair_save_details(request, pk):
         # If completed, restore vehicle
         if repair.status == 'completed':
             vehicle = repair.vehicle
-            has_active = vehicle.contracts.filter(status='active').exists()
+            has_active = vehicle_has_active_contracts(vehicle.id)
             vehicle.status = 'in-use' if has_active else 'available'
             if repair.date_finished:
                 vehicle.last_maintenance = repair.date_finished
@@ -507,7 +533,7 @@ def repair_mark_completed(request, pk):
     repair.save()
     # Restore vehicle status
     vehicle = repair.vehicle
-    has_active = vehicle.contracts.filter(status='active').exists()
+    has_active = vehicle_has_active_contracts(vehicle.id)
     vehicle.status = 'in-use' if has_active else 'available'
     vehicle.last_maintenance = repair.date_finished
     vehicle.save()
@@ -521,7 +547,7 @@ def repair_delete(request, pk):
     repair = get_object_or_404(Repair, pk=pk)
     vehicle = repair.vehicle
     page = request.POST.get('page', 1)
-    has_active = vehicle.contracts.filter(status='active').exists()
+    has_active = vehicle_has_active_contracts(vehicle.id)
     vehicle.status = 'in-use' if has_active else 'available'
     vehicle.save()
     repair.delete()
@@ -556,15 +582,25 @@ def notifications(request):
     from .services import generate_notifications
     generate_notifications()
     notif_type = request.GET.get('type','')
-    qs = Notification.objects.all()
+
+    # Raw SQL: Fetch all notifications with optional type filter
     if notif_type == 'payment':
-        qs = qs.filter(notification_type='payment_overdue')
+        notifications_list = fetch_notifications('payment_overdue')
     elif notif_type == 'expiry':
-        qs = qs.filter(notification_type__in=['license_expiry','or_expiry','cr_expiry','cpc_expiry'])
-    payment_count = Notification.objects.filter(notification_type='payment_overdue').count()
-    expiry_count = Notification.objects.filter(notification_type__in=['license_expiry','or_expiry','cr_expiry','cpc_expiry']).count()
+        notifications_list = []
+        for ntype in ['license_expiry','or_expiry','cr_expiry','cpc_expiry']:
+            notifications_list.extend(fetch_notifications(ntype))
+        notifications_list.sort(key=lambda x: x['created_at'], reverse=True)
+    else:
+        notifications_list = fetch_notifications()
+
+    payment_count = count_notifications_by_type('payment_overdue')
+    expiry_count = 0
+    for ntype in ['license_expiry','or_expiry','cr_expiry','cpc_expiry']:
+        expiry_count += count_notifications_by_type(ntype)
+
     ctx = {
-        'notifications': qs,
+        'notifications': notifications_list,
         'notif_type': notif_type,
         'payment_count': payment_count,
         'expiry_count': expiry_count,
@@ -590,7 +626,12 @@ def notification_mark_read(request, pk):
 @require_POST
 def notification_mark_all_read(request):
     type_filter = request.POST.get('type', '')
-    Notification.objects.filter(is_read=False).update(is_read=True)
+    if type_filter == 'payment':
+        mark_notifications_read(['payment_overdue'])
+    elif type_filter == 'expiry':
+        mark_notifications_read(['license_expiry','or_expiry','cr_expiry','cpc_expiry'])
+    else:
+        mark_notifications_read()
     messages.success(request, 'All notifications marked as read.')
     if type_filter:
         return redirect(f"/notifications/?type={type_filter}")
@@ -629,16 +670,15 @@ def vehicle_data_json(request, pk):
 @login_required
 def contract_drivers_json(request):
     """Available drivers for contract modal (active, no active contract)"""
-    exclude_ids = Contract.objects.filter(status='active').values_list('driver_id', flat=True)
-    qs = Driver.objects.filter(status='active').exclude(id__in=exclude_ids)
-    return JsonResponse({'drivers': list(qs.values('id','first_name','last_name'))})
+    drivers = fetch_available_drivers()
+    return JsonResponse({'drivers': drivers})
 
 
 @login_required
 def contract_vehicles_json(request):
     """Available vehicles for contract modal"""
-    qs = Vehicle.objects.filter(status='available')
-    return JsonResponse({'vehicles': list(qs.values('id','plate_number','brand','model'))})
+    vehicles = fetch_available_vehicles()
+    return JsonResponse({'vehicles': vehicles})
 
 
 @login_required

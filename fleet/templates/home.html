@@ -94,7 +94,7 @@
                         </div>
                         <div class="text-end">
                             <small class="d-block justify-content-end mb-0">₱{{ c.daily_rate }}/day</small>
-                            <span class="badge-status {{ c.status }}">{{ c.status }}</span>
+                            <span class="badge-status {{ c.status }}">{{ c.status_display }}</span>
                         </div>
                     </div>
                     <hr>
@@ -116,7 +116,7 @@
                         </div>
                         <div class="text-end">
                             <small class="d-block mb-0">₱{{ p.amount|floatformat:0 }}</small>
-                            <span class="badge-status {{ p.status }}">{{ p.status }}</span>
+                            <span class="badge-status {{ p.status }}">{{ p.status_display }}</span>
                         </div>
                     </div>
                     <hr>
